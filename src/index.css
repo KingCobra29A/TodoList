@@ -1,0 +1,31 @@
+body {
+    background-color: aqua;
+}
+
+header {
+    width: 100%;
+    height: 3rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: grey;
+}
+
+.header-div {
+    padding: 0.5rem 1rem;
+}
+
+header > div > button {
+    background-color: transparent;
+    border: none;
+    width: 2rem;
+    height: 2rem;
+
+}
+
+header > div > button > img {
+    width: 100%;
+    height: 100%;
+    color: white;
+}
+
