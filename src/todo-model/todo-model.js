@@ -74,6 +74,32 @@ const TodoList = (() => {
         }
     }
 
+    //Lower order fn used by "modify"
+    const _modifyTodoCategory = (input) => {
+        //TODO
+    }
+
+    //Lower order fn used by "modify"
+    const _modifyTodo = () => {
+        //TODO
+    }
+
+    /*
+    **
+    **
+    */
+   const modify = (method, payload) => {
+        //TODO
+   }
+
+   /*
+   **
+   **
+   */
+  const remove = (method, payload) => {
+        //TODO
+  }
+
     return {    add,
                 query,
                 modify,
