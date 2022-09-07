@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 export const TodoList = (() => {
     let _todoList = [];
     let _categoryDict = {};
+    let _categoryKey = "categories";    /*used in _localStorageLoadTodo, _addCategory methods*/
     //let _addCallback = todoController.modelCallback;
     //let _queryCallback = todoController.modelCallback;
 
@@ -27,18 +28,18 @@ export const TodoList = (() => {
         }
     }
 
-
-    // TODO
-    const _localStorageUpdateTodo = () => {
-        //Pretty sure this isnt necessary. _localStorageStoreTodo should do the necessary
-    }
-
     // Loads the entire contents of localStorage into the _todoList array
     // TODO: add protection against duplicate entries in the array?
     const _localStorageLoadTodo = () => {
         if(window.localStorage){
             for(let i = 0; i < localStorage.length; i++){
-                _todoList.push(JSON.parse(localStorage.getItem(localStorage.key(i))));
+                let currentKey = localStorage.key(i);
+                if(currentKey === _categoryKey){
+                    _categoryDict = JSON.parse(localStorage.getItem(currentKey));
+                }
+                else{
+                    _todoList.push(JSON.parse(localStorage.getItem(currentKey)));
+                }                
             }
         }
         else{
@@ -54,8 +55,12 @@ export const TodoList = (() => {
     }
 
     //Lower order fn used by "add"
+    //if a new category is added, it is immediately committed to local storage
     const _addCategory = (input) => {
-        if(!_categoryDict.hasOwnProperty(input)) _categoryDict[input] = true;
+        if(!_categoryDict.hasOwnProperty(input)){
+            _categoryDict[input] = true;
+            localStorage.setItem(_categoryKey, JSON.stringify(_categoryDict));
+        } 
         else{
             //duplicate category, maybe take some action?
         }
@@ -89,7 +94,7 @@ export const TodoList = (() => {
 
     //Lower order fn used by "query"
     const _getTodoByDate = (date) => {
-        //TODO
+        //TODO, should use a date library probably
         return;
     }
 
@@ -109,14 +114,18 @@ export const TodoList = (() => {
         }
     }
 
-    //Lower order fn used by "modify"
-    const _modifyTodoCategory = (input) => {
-        //TODO
+    //Lower order fn
+    const _getIndexofID = (id) => {
+        return _todoList.findIndex((element) => element.id == id);
     }
 
     //Lower order fn used by "modify"
-    const _modifyTodo = () => {
-        //TODO
+    const _modifyTodo = (payload) => {
+        let id = payload.id;
+        delete payload.id;
+        for (const property in payload){
+            _todoList[_getIndexofID(id)][property] = payload[property];
+        }
     }
 
     /*
@@ -124,7 +133,25 @@ export const TodoList = (() => {
     **
     */
    const modify = (method, payload) => {
-        //TODO
+        if(method == "Todo"){
+            _modifyTodo(payload);
+        }
+        else if(method == "Category"){
+            //no reason to modify a category yet, but the future does exist
+        }
+        else{
+            //invalid method
+        }
+   }
+
+   //Lower order fn
+   const _removeCategory = (category) => {
+        if(_categoryDict.hasOwnProperty(category)){
+            delete _categoryDict[category];
+        }
+        else{
+            //category does not exist in _categoryDict to begin with
+        }
    }
 
    /*
@@ -132,7 +159,12 @@ export const TodoList = (() => {
    **
    */
   const remove = (method, payload) => {
-        //TODO
+        if(method == category){
+            _removeCategory(payload);
+        }
+        else{
+            //invalid method
+        }
   }
 
   /*
@@ -141,16 +173,20 @@ export const TodoList = (() => {
   **
   */
  const debugPrintState = () => {
-    console.log("Todo State: ")
+    console.log("Todo State: ");
     console.log(_todoList);
+    console.log("Category State: ");
+    console.log(_categoryDict);
  }
+
+ //Invoking the load function 
+ _localStorageLoadTodo();
 
     return {    add,
                 query,
                 modify,
                 remove,
                 debugPrintState,
-                _localStorageLoadTodo,
             }
 
 })();
