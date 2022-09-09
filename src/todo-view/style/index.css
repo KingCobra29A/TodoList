@@ -1,5 +1,22 @@
+:root {
+    --active-menu-item: azure;
+    --menu-background-color: bisque;
+    --content-background-color: black;
+    --header-background-color: grey;
+    --menu-item-margin-right: 1rem;
+    --menu-item-active-border-radius: 5px;
+}
+
+html {
+    height: 100vh;
+    width: 100vw;
+}
 body {
-    background-color: aqua;
+    background-color: cyan;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-flow: column;
 }
 
 header {
@@ -8,7 +25,7 @@ header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    background-color: grey;
+    background-color: var(--header-background-color);
 }
 
 .header-div {
@@ -23,10 +40,116 @@ header > div > button {
     cursor: pointer;
 }
 
-
 button > img {
     width: 100%;
     height: 100%;
     color: white;
 }
 
+.content-wrapper {
+    display: flex;
+    flex-grow: 1;
+    overflow: auto;
+}
+
+.menu-wrapper {
+    width: 20rem;
+    height: 100%;
+    background-color: var(--menu-background-color);
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    margin: 1.5rem 0 0 2rem;
+}
+
+.menu-active {
+    background-color: var(--active-menu-item);
+    border-radius: 5px;
+}
+
+.menu-item-sizing {
+    height: 2rem;
+    width: 17.5rem;
+}
+
+.menu-item {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu-item:hover {
+    background-color: var(--active-menu-item);
+    border-radius: var(--menu-item-active-border-radius);
+}
+
+.icon-placeholder {
+    height: 2rem;
+    width: 2rem;
+    padding-left: 10px;
+    display: flex;
+    justify-content: center;
+    flex-direction: center;
+}
+
+.project-icon-placeholder {
+    height: 2rem;
+    width: 2rem;
+    padding-left: 10px;
+    display: flex;
+    justify-content: center;
+    flex-direction: center;
+}
+
+.icon-placeholder > img {
+    width: 20px;
+}
+
+.menu-bullet {
+    width: 10px;
+    height: 10px;
+    margin: auto;
+}
+
+.project-menu-bar-root {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between
+    
+}
+
+.project-menu-bar-left {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.add-project-btn {
+    height: 2rem;
+    width: 2rem;
+    display: flex;
+    margin-right: var(--menu-item-margin-right);
+}
+
+.add-project-btn > img{
+    height: 70%;
+    margin: auto;
+}
+
+.add-project-btn:hover {
+    background-color: var(--active-menu-item);
+    border-radius: var(--menu-item-active-border-radius);
+}
+
+.content {
+    background-color: var(--content-background-color);
+    height: 100%;
+    flex: 1;
+}

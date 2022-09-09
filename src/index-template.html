@@ -5,25 +5,84 @@
     <title>doStuff</title>
   </head>
 
-  <header>
-    <div class="header-left header-div">
-        <button>
-            <img src="./todo-view/assets/noun-menu-3661996.svg">
-        </button>
-        <button>
-            <img src="./todo-view/assets/noun-home-5121495.svg">
-        </button>
-    </div>
-    <div class="header-right header-div">
-        <button>
-            <img src="./todo-view/assets/noun-plus-1807535.svg">
-        </button>
-    </div>
-  </header>
-
   <body>
-    <div class="menu"></div>
-    <div class="content"></div>
+    <header>
+      <div class="header-left header-div">
+          <button>
+              <img src="./todo-view/assets/noun-menu-3661996.svg">
+          </button>
+          <button>
+              <img src="./todo-view/assets/noun-home-5121495.svg">
+          </button>
+      </div>
+      <div class="header-right header-div">
+          <button class="add-todo-btn">
+              <img src="./todo-view/assets/noun-plus-1807535.svg">
+          </button>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <div class="menu-wrapper">
+        <ul class="menu">
+          <li class="menu-item menu-item-sizing menu-active">
+            <span class="icon-placeholder">
+              <img src="./todo-view/assets/noun-chameleon-1049192.svg">
+            </span>
+            <h1>Uncategorized</h1>
+          </li>
+          <li class="menu-item menu-item-sizing">
+            <span class="icon-placeholder">
+              <img src="./todo-view/assets/noun-chameleon-1049192.svg">
+            </span>
+            <h1>Today</h1>
+          </li>
+          <li class="projects-header-li menu-item-sizing">
+            <div class="project-menu-bar-root">
+              <div class="project-menu-bar-left">
+                <span class="icon-placeholder">
+                  <img src="./todo-view/assets/noun-chameleon-1049192.svg">
+                </span>
+                <h1>Projects</h1>
+              </div>
+              <div class="add-project-btn">
+                <img src="./todo-view/assets/noun-plus-1807535.svg">
+              </div>            
+            </div>
+            <ul class="project-list">
+              <li class="menu-item menu-item-sizing">
+                <span class="project-icon-placeholder">
+                  <img class="menu-bullet"src="./todo-view/assets/noun-circle-5147182.svg">
+                </span>
+                <h1>EGGS</h1>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="content">
+  
+      </div>
+    </div>
   </body>
 
+
+
 </html>
+
+<!--
+<form onsubmit="viewAddTodo(); return false">
+  <h1>Add Todo</h1>
+  <p>
+    <label for="Subject">Subject:</label>
+    <input type="text" id="Subject" name="Subject" placeholder="Eat tacos">
+  </p>
+  <p>
+    <label for="description">Description:</label>
+    <input type="text" id="description" name="description" placeholder="Add taco description">
+  </p>
+  <p class="submit-button">
+    <input type="submit" value="Add">
+  </p>
+</form>
+
+-->

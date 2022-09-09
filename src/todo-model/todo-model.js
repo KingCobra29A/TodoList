@@ -103,11 +103,14 @@ export const TodoList = (() => {
     **
     */
     const query = (method, payload) => {
-        if(method == "Category"){
+        if(method == "TodoByCategory"){
             //_queryCallback("query", _getTodoByCategory(payload.category)); //Arguements are assumed
         }
-        else if(method == "Date"){
+        else if(method == "TodoByDate"){
             //_queryCallback("query", _getTodoByDate(payload.date)); //Arguements are assumed
+        }
+        else if(method == "Categories"){
+            return JSON.parse(JSON.stringify(_categoryDict));
         }
         else{
             //invalid method
@@ -190,18 +193,3 @@ export const TodoList = (() => {
             }
 
 })();
-
-
-let tempTodos = [
-    {title:"Eat Fudge",description:"2lbs",date:null},
-    {title:"meow",description:"prrrow",date:null},
-    {title:"a",description:"AA",date:null},
-    {title:"b",description:"BB",date:null},
-    {title:"c",description:"CC",date:null},
-    {title:"d",description:"DD",date:null},
-    {title:"e",description:"EE",date:null},
-    {title:"f",description:"FF",date:null},
-    {title:"g",description:"GG",date:null},
-    {title:"h",description:"HH",date:null}
-]
-
