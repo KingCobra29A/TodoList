@@ -104,7 +104,7 @@ export const TodoList = (() => {
     */
     const query = (method, payload) => {
         if(method == "TodoByCategory"){
-            //_queryCallback("query", _getTodoByCategory(payload.category)); //Arguements are assumed
+            return _getTodoByCategory(payload.category);
         }
         else if(method == "TodoByDate"){
             //_queryCallback("query", _getTodoByDate(payload.date)); //Arguements are assumed
