@@ -1,8 +1,8 @@
 :root {
-    --active-menu-item: azure;
-    --menu-background-color: bisque;
-    --content-background-color: black;
-    --header-background-color: grey;
+    --active-menu-item: #DFDDF4;
+    --menu-background-color: #EDE8F7;
+    --content-background-color: #FAF0F9;
+    --header-background-color: #C25C47;
     --menu-item-margin-right: 1rem;
     --menu-item-active-border-radius: 5px;
 }
@@ -67,10 +67,6 @@ button > img {
 .menu-active {
     background-color: var(--active-menu-item);
     border-radius: 5px;
-}
-
-.menu-item-sizing {
-    height: 2rem;
     width: 17.5rem;
 }
 
@@ -148,8 +144,36 @@ button > img {
     border-radius: var(--menu-item-active-border-radius);
 }
 
-.content {
+.todo-list-wrapper {
     background-color: var(--content-background-color);
     height: 100%;
     flex: 1;
+    display: flex;
+    justify-content: center;
 }
+
+.todo-list {
+    flex: 1;
+    max-width: 70%;
+    margin: 1.5rem 0 0 0;
+}
+
+#todo-list-header {
+    width: 100%;
+    height: 4rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#todo-list-header > h1 {
+    height: 2rem;
+    font-weight: 700;
+}
+
+#todo-list-header > hr {
+    border: 1px solid black;
+    width: 100%;
+}
+
