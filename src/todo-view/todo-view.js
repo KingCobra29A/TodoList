@@ -98,6 +98,7 @@ const TodoView = (() => {
         input.id = forIn;
         input.name = nameIn;
         input.value = forIn;
+        input.required = "required";
         label.for = forIn;
         choice.appendChild(input);
         choice.appendChild(label);        
@@ -161,7 +162,10 @@ const TodoView = (() => {
 
     //Creates the form which will categorize the todo, if submitted
     const categorizeTodoCallback = (e) => {
-        let btnWrapper = e.currentTarget.parentNode;        
+        let btnWrapper = e.currentTarget.parentNode;
+        if(_isModalActive){
+            _removeCategoryModal();
+        }        
         _createCategoryForm(btnWrapper);
     }
 
