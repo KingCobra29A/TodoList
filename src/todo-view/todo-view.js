@@ -12,6 +12,8 @@ const TodoView = (() => {
     let _todoListHeader = document.getElementById("todo-list-header");
     let _todoList = document.getElementById("current-todos");
     let _currentCategory = document.querySelector(".menu-active");
+    let _activeCategoryModal = false;
+    let _isModalActive = false;
     let todoBTN = document.querySelector(".add-todo-btn");
 
 
@@ -21,6 +23,13 @@ const TodoView = (() => {
 
     function viewAddTodo(){
         event.preventDefault();
+    }
+
+    //lower order fn used by _createTodoContent
+    const createText = (typeOfText, content) => {
+        let container = document.createElement(typeOfText);
+        container.appendChild(document.createTextNode(content));
+        return container;
     }
 
     //lower order fn
@@ -62,28 +71,102 @@ const TodoView = (() => {
     const _buildCategoryList = () => {
         let categories = TodoController.getCategories();
         let categoryList = document.querySelector(".project-list");
+        while (categoryList.firstChild) {
+            categoryList.removeChild(categoryList.firstChild);
+        }
         for(let i = 0; i < categories.length; i++){
             categoryList.appendChild(_buildMenuItem(categories[i]));
         }
     }
 
+
+    //lower order fn
+    //used by submitCategoryFormCallback and initView
+    const _removeCategoryModal = () => {
+        _activeCategoryModal.parentNode.removeChild(_activeCategoryModal);
+        _activeCategoryModal = false;
+        _isModalActive = false;
+    }
+
+    //lower order fn
+    //used by _createCategoryForm
+    const _createCategoryChoice = (nameIn, forIn) => {
+        let choice = document.createElement("p");
+        let label = createText("label", forIn);
+        let input = document.createElement("input");
+        input.type = "radio";
+        input.id = forIn;
+        input.name = nameIn;
+        input.value = forIn;
+        label.for = forIn;
+        choice.appendChild(input);
+        choice.appendChild(label);        
+        return choice;
+    }
+
     //
-    const editTodoCallback = () => {
+    //
+    const submitCategoryFormCallback = (eventTarget) => {
+        let catgorySelection = document.forms.categoryForm.elements.categoryChoice.value;
+        let todoLi = eventTarget.parentNode.parentNode.parentNode;
+
+        TodoController.categorizeTodo(todoLi.id, catgorySelection);
+        _removeCategoryModal();
+        _refreshView();              
+    }
+
+    //lower order fn 
+    //used by createCategoryForm
+    const _createSubmitButton = (valueIn) => {
+        let wrapper = document.createElement("p");
+        let btn = document.createElement("input");
+        btn.type = "submit";
+        btn.value = valueIn;
+        wrapper.classList.add("submit-btn");
+        wrapper.appendChild(btn);
+        return wrapper;
+    }
+
+    //lower oder fn
+    //used by categorizeTodoCallback
+    const _createCategoryForm = (parentElement) => {
+        let categories = TodoController.getCategories();
+        let catForm = document.createElement("form"); 
+        catForm.name = "categoryForm";
+        catForm.classList.add("todo-btn-category-options");
+        catForm.appendChild(createText("h1", "Change category to:"));
+        for(let i = 0; i < categories.length; i++){
+            catForm.appendChild(_createCategoryChoice("categoryChoice", categories[i]));
+        }
+        catForm.appendChild(_createSubmitButton("Submit category choice"));
+        catForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            submitCategoryFormCallback(e.target);
+            return false;
+        });        
+        _activeCategoryModal = catForm;
+        parentElement.appendChild(catForm);
+        setTimeout(()=>_isModalActive = true, 0)
+    }
+
+    //
+    const editTodoCallback = (e) => {
         console.log("edit");
     }
 
     //
-    const changeDateCallback = () => {
+    const changeDateCallback = (e) => {
         console.log("calendar");
     }
 
-    //
-    const categorizeTodoCallback = () => {
-        console.log("categorize");
+    //Creates the form which will categorize the todo, if submitted
+    const categorizeTodoCallback = (e) => {
+        let btnWrapper = e.currentTarget.parentNode;        
+        _createCategoryForm(btnWrapper);
     }
 
     //
-    const checkOffTodoCallback = () => {
+    const checkOffTodoCallback = (e) => {
         console.log("DONE");
     }
 
@@ -95,7 +178,7 @@ const TodoView = (() => {
             btn.classList.add(inputClasses[i]);
         }
         btn.src = src;
-        btn.addEventListener('click', () => callback())
+        btn.addEventListener('click', (e) => callback(e))
         return btn;
     }
 
@@ -110,12 +193,7 @@ const TodoView = (() => {
         return btnWrapper;
     }
 
-    //lower order fn used by _createTodoContent
-    const createText = (typeOfText, content) => {
-        let container = document.createElement(typeOfText);
-        container.appendChild(document.createTextNode(content));
-        return container;
-    }
+
 
     //lower order fn used in _createTodoContentWrapper
     const _createTodoContent = (todo) => {
@@ -139,9 +217,9 @@ const TodoView = (() => {
     //returns a li which represents a todo
     //id of the li is set to index
     //used in _populateTodoList
-    const _createTodo = (todo, index) => {
+    const _createTodo = (todo) => {
         let todoElement = document.createElement("li");
-        todoElement.id = index;
+        todoElement.id = todo.id;
         todoElement.classList.add("todo-li")
         todoElement.appendChild(_createTodoContentWrapper(todo));
         todoElement.appendChild(document.createElement("hr"));
@@ -199,14 +277,27 @@ const TodoView = (() => {
 
     //
     //
+    const _refreshView = () => {
+        _buildCategoryList();
+        _clearTodoList();
+        _populateTodoList(TodoController.getTodos());
+    }
+
+    //
+    //
     const initView = () => {
         let menuItemUncategoried = document.getElementById("uncategorized");
         menuItemUncategoried.addEventListener('click', (e) => selectMenu(e.currentTarget));
         _buildCategoryList();
+        _refreshView();
 
-    }
-
-    
+        //Event listener to remove category modal
+        window.addEventListener('click', (e) => {
+            if(_isModalActive && !_activeCategoryModal.contains(e.target)){
+                _removeCategoryModal();
+            }
+        });
+    }    
 
     return{
         initView,
@@ -214,6 +305,7 @@ const TodoView = (() => {
 })();
 
 TodoView.initView();
+
 
 /*
 Event listener

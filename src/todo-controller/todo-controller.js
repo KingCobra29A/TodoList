@@ -10,16 +10,26 @@ export const TodoController = (() => {
 
     }
 
+    const getTodos = () => {
+        return TodoList.query("TodoByCategory", {category:_currentCategory});
+    }
+
     const selectCategory = (categoryIn) => {
         _currentCategory = categoryIn;
-        _currentTodos = TodoList.query("TodoByCategory", {category: categoryIn});
+        _currentTodos = getTodos();
         return _currentTodos;
+    }
+
+    const categorizeTodo = (id, category) => {
+        TodoList.modify("Todo", {id, category})
     }
 
 
     return {
         getCategories,
+        getTodos,
         selectCategory,
+        categorizeTodo,        
     };
 })();
 

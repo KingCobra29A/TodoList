@@ -129,6 +129,7 @@ export const TodoList = (() => {
         for (const property in payload){
             _todoList[_getIndexofID(id)][property] = payload[property];
         }
+        _localStorageStoreTodo(_todoList[_getIndexofID(id)]);
     }
 
     /*

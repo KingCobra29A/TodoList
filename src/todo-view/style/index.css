@@ -195,6 +195,7 @@ hr {
     margin-left: auto;
     display: flex;
     gap: 5px; 
+    position: relative;
 }
 
 .todo-btn {
@@ -203,3 +204,23 @@ hr {
     cursor: pointer;
 }
 
+.todo-btn-category-options {
+    position:absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    height: 200px;
+    background-color: aquamarine;
+    z-index: 99;
+    overflow-y: auto;
+}
+
+.todo-btn-category-options > h1 {
+    margin: 5px auto;
+}
+
+.submit-btn {
+    margin: auto auto 5px auto;
+}
