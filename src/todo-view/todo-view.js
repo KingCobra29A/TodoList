@@ -29,13 +29,68 @@ const TodoView = (() => {
             if(classes.length){
                 returnImage.classList.add(...classes);
             }
-            console.log(returnImage)
             return returnImage;
+        }
+
+        //
+        const _createLabel = (name, label) => {
+            let labelElement = createText("label", label);
+            labelElement.htmlFor = name;
+            return labelElement;
+        }
+
+        //
+        const _createTextInput = (name) => {
+            let inputElement = document.createElement("input");
+            inputElement.type = "text";
+            inputElement.id = name;
+            inputElement.name = name;
+            return inputElement;
+        }
+
+        //
+        const _createRadioInput = (fields) => {
+            let inputElement = document.createElement("input");
+            inputElement.type = "radio"
+            inputElement.id = fields[0];
+            inputElement.value = fields[0];
+            inputElement.name = fields[1];
+            return inputElement;
+
+        }
+
+        //fields is an array: [name, fieldName]
+        //
+        const createFormField = (fields, label, type) => {
+            let wrapper = document.createElement("p");
+            if(type == "radio"){
+                wrapper.appendChild(_createRadioInput(fields));
+                wrapper.appendChild(_createLabel(fields[0], label));
+            }
+            else{
+                wrapper.appendChild(_createLabel(fields[0], label));
+                wrapper.appendChild(_createTextInput(fields[0]));
+            }
+            return wrapper;
+        }
+
+        //lower order fn 
+        //used by createCategoryForm
+        const createSubmitButton = (valueIn) => {
+            let wrapper = document.createElement("p");
+            let btn = document.createElement("input");
+            btn.type = "submit";
+            btn.value = valueIn;
+            wrapper.classList.add("submit-btn");
+            wrapper.appendChild(btn);
+            return wrapper;
         }
 
         return{
             createText,
             createImg,
+            createFormField,
+            createSubmitButton,
         }
     })();
 
@@ -77,22 +132,13 @@ const TodoView = (() => {
             //lower order fn
             //used by _createCategoryForm
             const _createCategoryChoice = (nameIn, forIn) => {
-                let choice = document.createElement("p");
-                let label = _Utilities.createText("label", forIn);
-                let input = document.createElement("input");
-                input.type = "radio";
-                input.id = forIn;
-                input.name = nameIn;
-                input.value = forIn;
-                input.required = "required";
-                label.for = forIn;
-                choice.appendChild(input);
-                choice.appendChild(label);        
+                let choice = _Utilities.createFormField([forIn, nameIn], forIn ,"radio")
+                choice.firstChild.required = "required";   
                 return choice;
             }
 
-            //
-            //
+            //Called when the category modal form is submitted
+            //Todo is categorized and the view is refreshed
             const submitCategoryFormCallback = (eventTarget) => {
                 let catgorySelection = document.forms.categoryForm.elements.categoryChoice.value;
                 let todoLi = eventTarget.parentNode.parentNode.parentNode;
@@ -100,18 +146,6 @@ const TodoView = (() => {
                 TodoController.categorizeTodo(todoLi.id, catgorySelection);
                 _removeCategoryModal();
                 _MenuTools.refreshView();              
-            }
-
-            //lower order fn 
-            //used by createCategoryForm
-            const _createSubmitButton = (valueIn) => {
-                let wrapper = document.createElement("p");
-                let btn = document.createElement("input");
-                btn.type = "submit";
-                btn.value = valueIn;
-                wrapper.classList.add("submit-btn");
-                wrapper.appendChild(btn);
-                return wrapper;
             }
 
             //lower oder fn
@@ -125,7 +159,7 @@ const TodoView = (() => {
                 for(let i = 0; i < categories.length; i++){
                     catForm.appendChild(_createCategoryChoice("categoryChoice", categories[i]));
                 }
-                catForm.appendChild(_createSubmitButton("Submit category choice"));
+                catForm.appendChild(_Utilities.createSubmitButton("Submit category choice"));
                 catForm.addEventListener("submit", (e) => {
                     e.preventDefault();
                     submitCategoryFormCallback(e.target);
@@ -333,28 +367,14 @@ const TodoView = (() => {
     //Internal Module used to set up add todo button
     const _TodoBtn =(() => {
 
-        //lower order fn
-        //used in _createAddTodoModalForm
-        const createTextInput = (fieldName, label) => {
-            let wrapper = document.createElement("p");
-            let inputElement = document.createElement("input");
-            let labelElement = _Utilities.createText("label", label);
-            inputElement.type = "text";
-            inputElement.id = fieldName;
-            inputElement.name = fieldName;
-            labelElement.for = fieldName;
-            wrapper.appendChild(labelElement);
-            wrapper.appendChild(inputElement);
-            return wrapper;
-        }
-
         //
         //
         const _createAddTodoModalForm = () => {
             let modalForm = document.createElement("form");
             modalForm.appendChild(_Utilities.createText("h1", "Add Todo"));
-            modalForm.appendChild(createTextInput("modal-title", "Title"));
-            modalForm.appendChild(createTextInput("modal-description", "Description"));
+            modalForm.appendChild(_Utilities.createFormField(["modal-title"], "Title", "text"));
+            modalForm.appendChild(_Utilities.createFormField(["modal-description"], "Description", "text"));
+            modalForm.appendChild(_Utilities.createSubmitButton("Add Todo"));
             modalForm.classList.add("modal-content");   
             return modalForm;
         } 
@@ -368,7 +388,7 @@ const TodoView = (() => {
             modal.appendChild(_createAddTodoModalForm());
             modal.addEventListener("click", (e) => {
                 if (e.target == modal) {
-                    modal.style.display = "none";
+                    modal.parentNode.removeChild(modal);
                 }
             });
             document.body.appendChild(modal);
