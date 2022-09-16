@@ -24,12 +24,17 @@ export const TodoController = (() => {
         TodoList.modify("Todo", {id, category})
     }
 
+    const addTodo = (title, description, date) => {
+        TodoList.add("Todo", {title, description, date});
+    }
+
 
     return {
         getCategories,
         getTodos,
         selectCategory,
-        categorizeTodo,        
+        categorizeTodo,
+        addTodo,        
     };
 })();
 

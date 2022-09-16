@@ -367,22 +367,47 @@ const TodoView = (() => {
     //Internal Module used to set up add todo button
     const _TodoBtn =(() => {
 
+        let modal;
+
+        const _removeModal = () => {
+            modal.parentNode.removeChild(modal);
+            modal = null;
+        }
+
+        //
+        //
+        const submitAddTodoFormCallback = () => {
+            let formContents = document.forms.addTodoForm.elements;
+            let title = formContents.todoTitle.value;
+            let description = formContents.todoDescription.value;
+            
+            TodoController.addTodo(title, description, null);
+            _removeModal();
+            _MenuTools.refreshView(); 
+        }
+
         //
         //
         const _createAddTodoModalForm = () => {
             let modalForm = document.createElement("form");
+            modalForm.name = "addTodoForm";
             modalForm.appendChild(_Utilities.createText("h1", "Add Todo"));
-            modalForm.appendChild(_Utilities.createFormField(["modal-title"], "Title", "text"));
-            modalForm.appendChild(_Utilities.createFormField(["modal-description"], "Description", "text"));
+            modalForm.appendChild(_Utilities.createFormField(["todoTitle"], "Title", "text"));
+            modalForm.appendChild(_Utilities.createFormField(["todoDescription"], "Description", "text"));
             modalForm.appendChild(_Utilities.createSubmitButton("Add Todo"));
-            modalForm.classList.add("modal-content");   
+            modalForm.classList.add("modal-content");
+            modalForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                submitAddTodoFormCallback(e.target);
+                return false;
+            });    
             return modalForm;
         } 
 
         //lower order fn 
         //used by setupTodoBtn
         const _createAddTodoModal = () => {
-            let modal = document.createElement("div");
+            modal = document.createElement("div");
             modal.id = "add-todo-modal";
             modal.classList.add("modal");
             modal.appendChild(_createAddTodoModalForm());
