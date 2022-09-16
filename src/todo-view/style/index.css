@@ -66,7 +66,7 @@ button > img {
 
 .menu-active {
     background-color: var(--active-menu-item);
-    border-radius: 5px;
+    border-radius: var(--menu-item-active-border-radius);
     width: 17.5rem;
 }
 
@@ -81,6 +81,7 @@ button > img {
 .menu-item:hover {
     background-color: var(--active-menu-item);
     border-radius: var(--menu-item-active-border-radius);
+    width: 17.5rem;
 }
 
 .icon-placeholder {
@@ -224,3 +225,29 @@ hr {
 .submit-btn {
     margin: auto auto 5px auto;
 }
+
+.modal {
+    display: block; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 100; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100vw; /* Full width */
+    height: 100vh; /* Full height */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+
+  /* Modal Content/Box */
+.modal-content {
+    width: 40vw;
+    height: 60vh;
+    background-color: #fefefe;
+    margin: 20vh auto; /* 15% from the top and centered */
+    border: 1px solid #888;
+    
+  }
+
+  .modal-content > h1 {
+    font-size: 3rem;
+  }
