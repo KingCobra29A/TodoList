@@ -87,9 +87,23 @@ export const TodoList = (() => {
         //_addCallback("add", []); //HACK
     }
 
+    //lower order fn used by _getTodoByCategory
+    const _todoCategoryNonexistant = (categoryIn) => {
+        return (!(_categoryDict.hasOwnProperty(categoryIn)));
+    }
+
     //Lower order fn used by "query"
     const _getTodoByCategory = (category) => {
-        return _todoList.filter((element) => element.active && element.category.toLowerCase() == category.toLowerCase());
+        return _todoList.filter((element) => {
+            if(category.toLowerCase() === "uncategorized"){
+                return  ((element.active && element.category.toLowerCase() == category.toLowerCase()) ||
+                        (element.active && _todoCategoryNonexistant(element.category)));
+            }
+            else{
+                return  element.active && element.category.toLowerCase() == category.toLowerCase();
+            }
+            
+        })
     }
 
     //Lower order fn used by "query"
