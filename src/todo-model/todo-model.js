@@ -89,7 +89,7 @@ export const TodoList = (() => {
 
     //Lower order fn used by "query"
     const _getTodoByCategory = (category) => {
-        return _todoList.filter((element) => element.active && element.category == category);
+        return _todoList.filter((element) => element.active && element.category.toLowerCase() == category.toLowerCase());
     }
 
     //Lower order fn used by "query"

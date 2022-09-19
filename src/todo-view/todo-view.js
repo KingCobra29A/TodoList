@@ -434,8 +434,9 @@ const TodoView = (() => {
     //Called once on page load
     //
     const initView = () => {
-        let menuItemUncategoried = document.getElementById("uncategorized");
+        let menuItemUncategoried = document.getElementById("Uncategorized");
         menuItemUncategoried.addEventListener('click', (e) => _MenuTools.selectMenu(e.currentTarget));
+        menuItemUncategoried.click();
         _MenuTools.refreshView();
         _TodoBtn.init();
 
