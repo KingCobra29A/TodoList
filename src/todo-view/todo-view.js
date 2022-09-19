@@ -5,6 +5,8 @@ import bulletSrc from './assets/noun-circle-5147182.svg';
 import editSrc from './assets/noun-edit-3094235.svg';
 import callendarSrc from './assets/noun-schedule-4064788.svg';
 import moveSrc from './assets/noun-send-folder-1678334.svg';
+import unfilledCircleSrc from './assets/noun-unfilled-circle-1157067.svg';
+import checkboxSrc from './assets/noun-checkbox-1043038.svg';
 
 
 const TodoView = (() => {
@@ -107,7 +109,7 @@ const TodoView = (() => {
 
     //
     const checkOffTodoCallback = (e) => {
-        console.log("DONE");
+        e.target.src = checkboxSrc;
     }
 
 
@@ -238,7 +240,7 @@ const TodoView = (() => {
         const _createTodoContentWrapper = (todo) => {
             let todoWrapper = document.createElement("div");
             todoWrapper.classList.add("todo-wrapper")
-            todoWrapper.appendChild(_createTodoBtn(bulletSrc, ["todo-chip"], checkOffTodoCallback));
+            todoWrapper.appendChild(_createTodoBtn(unfilledCircleSrc, ["todo-chip"], checkOffTodoCallback));
             todoWrapper.appendChild(_createTodoContent(todo));
             todoWrapper.appendChild(_createTodoButtons());
             return todoWrapper;
