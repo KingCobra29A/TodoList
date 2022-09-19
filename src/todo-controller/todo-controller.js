@@ -28,13 +28,23 @@ export const TodoController = (() => {
         TodoList.add("Todo", {title, description, date});
     }
 
+    const toggleTodoCompletionStatus = (id) => {
+        let todo = _currentTodos.filter(todo => todo.id == id)[0];
+        if(todo.active == true){
+            TodoList.modify("Todo", {id, active: false});
+        }
+        else{
+            TodoList.modify("Todo", {id, active: true});
+        }
+    }
 
     return {
         getCategories,
         getTodos,
         selectCategory,
         categorizeTodo,
-        addTodo,        
+        addTodo,
+        toggleTodoCompletionStatus,       
     };
 })();
 

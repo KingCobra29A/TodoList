@@ -96,11 +96,11 @@ export const TodoList = (() => {
     const _getTodoByCategory = (category) => {
         return _todoList.filter((element) => {
             if(category.toLowerCase() === "uncategorized"){
-                return  ((element.active && element.category.toLowerCase() == category.toLowerCase()) ||
-                        (element.active && _todoCategoryNonexistant(element.category)));
+                return  (element.category.toLowerCase() == category.toLowerCase() ||
+                        (_todoCategoryNonexistant(element.category)));
             }
             else{
-                return  element.active && element.category.toLowerCase() == category.toLowerCase();
+                return  element.category.toLowerCase() == category.toLowerCase();
             }
             
         })

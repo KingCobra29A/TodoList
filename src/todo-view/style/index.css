@@ -184,7 +184,12 @@ hr {
 }
 
 .todo-wrapper {
-    display:flex
+    display:flex;
+    color: black;
+}
+
+.todo-wrapper-inactive {
+    opacity: .3;
 }
 
 .todo-chip {
