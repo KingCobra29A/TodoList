@@ -7,6 +7,7 @@ import callendarSrc from './assets/noun-schedule-4064788.svg';
 import moveSrc from './assets/noun-send-folder-1678334.svg';
 import unfilledCircleSrc from './assets/noun-unfilled-circle-1157067.svg';
 import checkboxSrc from './assets/noun-checkbox-1043038.svg';
+import optionsSrc from './assets/noun-dots-1287551.svg';
 
 
 const TodoView = (() => {
@@ -286,22 +287,33 @@ const TodoView = (() => {
         
             //lower order fn
             //used by _buildMenuItem
-            const _buildMenuItemImage = (imageSrc) => {
+            const _buildMenuItemImage = (imageSrc, wrapperClasses, imageClasses) => {
                 let wrapperSpan = document.createElement("span");
-                wrapperSpan.classList.add("project-icon-placeholder");
-                wrapperSpan.appendChild(_Utilities.createImg(imageSrc, ["menu-bullet"]));
+                wrapperSpan.classList.add(...wrapperClasses);
+                wrapperSpan.appendChild(_Utilities.createImg(imageSrc, imageClasses));
                 return wrapperSpan;
             }
-    
+
             //lower order fn
             //used in buildCategoryList and ?MAYBESOMETHINGELSE?
             const _buildMenuItem = (label) => {
                 let menuItem = document.createElement("li");
                 menuItem.classList.add('menu-item', 'menu-item-sizing');
-                menuItem.appendChild(_buildMenuItemImage(bulletSrc));
+                menuItem.appendChild(_buildMenuItemImage(bulletSrc, ["project-icon-placeholder"], ["menu-bullet"]));
                 menuItem.appendChild(_Utilities.createText("h1", label));
+                menuItem.appendChild(_buildMenuItemImage(optionsSrc, ["project-options-wrapper"], ["project-options-inactive", "project-options"]));
                 menuItem.id = label;
                 menuItem.addEventListener('click', (e) => _MenuTools.selectMenu(e.currentTarget));
+                menuItem.addEventListener('mouseover', (e) => {
+                    if(e.currentTarget.childNodes[2].firstChild.classList.contains("project-options-inactive")){
+                        e.currentTarget.childNodes[2].firstChild.classList.remove("project-options-inactive")
+                    }
+                })
+                menuItem.addEventListener('mouseout', (e) => {
+                    if(!e.currentTarget.childNodes[2].firstChild.classList.contains("project-options-inactive")){
+                        e.currentTarget.childNodes[2].firstChild.classList.add("project-options-inactive")
+                    }
+                })
                 return menuItem;
             }
     

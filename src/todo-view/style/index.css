@@ -1,10 +1,12 @@
 :root {
     --active-menu-item: #DFDDF4;
+    --active-menu-item-secondary: #EEE5FC;
     --menu-background-color: #EDE8F7;
     --content-background-color: #FAF0F9;
     --header-background-color: #C25C47;
     --menu-item-margin-right: 1rem;
     --menu-item-active-border-radius: 5px;
+    --menu-item-width: 17.5rem;
 }
 
 html {
@@ -67,7 +69,6 @@ button > img {
 .menu-active {
     background-color: var(--active-menu-item);
     border-radius: var(--menu-item-active-border-radius);
-    width: 17.5rem;
 }
 
 .menu-item {
@@ -76,12 +77,12 @@ button > img {
     flex-direction: row;
     align-items: center;
     gap: 10px;
+    width: var(--menu-item-width);
 }
 
 .menu-item:hover {
     background-color: var(--active-menu-item);
     border-radius: var(--menu-item-active-border-radius);
-    width: 17.5rem;
 }
 
 .icon-placeholder {
@@ -91,6 +92,30 @@ button > img {
     display: flex;
     justify-content: center;
     flex-direction: center;
+}
+
+.project-options-wrapper {
+    height: 2rem;
+    width: 2rem;
+    display: flex;
+    margin: 0 var(--menu-item-margin-right) 0 auto;
+}
+
+.project-options {
+    display: block;
+    height: 1.5rem;
+    width: 1.5rem;
+    margin: auto;
+
+}
+
+.project-options:hover {
+    background-color: var(--active-menu-item-secondary);
+    border-radius: var(--menu-item-active-border-radius);
+}
+
+.project-options-inactive {
+    display: none;
 }
 
 .project-icon-placeholder {
@@ -117,7 +142,8 @@ button > img {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between
+    justify-content: space-between;
+    width: var(--menu-item-width);
     
 }
 
