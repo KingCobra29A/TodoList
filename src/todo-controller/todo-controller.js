@@ -11,13 +11,14 @@ export const TodoController = (() => {
     }
 
     const getTodos = () => {
-        return TodoList.query("TodoByCategory", {category:_currentCategory});
+        //TODO, should probably be working off a deep copy?
+        _currentTodos = TodoList.query("TodoByCategory", {category:_currentCategory});
+        return _currentTodos;
     }
 
     const selectCategory = (categoryIn) => {
         _currentCategory = categoryIn;
-        _currentTodos = getTodos();
-        return _currentTodos;
+        return getTodos();
     }
 
     const categorizeTodo = (id, category) => {

@@ -110,8 +110,9 @@ const TodoView = (() => {
     //
     const checkOffTodoCallback = (e) => {
         let todoLi = e.target.parentNode.parentNode;
+        console.log(todoLi);
         TodoController.toggleTodoCompletionStatus(todoLi.id);
-        _MenuTools.refreshView();
+        setTimeout(_MenuTools.refreshView(), 10);
         //e.target.src = checkboxSrc;
         //e.target.parentNode.classList.add("todo-wrapper-inactive");
         //console.log(e.target.parentNode)
@@ -247,13 +248,14 @@ const TodoView = (() => {
             todoWrapper.classList.add("todo-wrapper")
             if(todo.active == true){
                 todoWrapper.appendChild(_createTodoBtn(unfilledCircleSrc, ["todo-chip"], checkOffTodoCallback));
+                todoWrapper.appendChild(_createTodoContent(todo));
+                todoWrapper.appendChild(_createTodoButtons());
             }
             else{
                 todoWrapper.classList.add("todo-wrapper-inactive");
                 todoWrapper.appendChild(_createTodoBtn(checkboxSrc, ["todo-chip"], checkOffTodoCallback));
-            }
-            todoWrapper.appendChild(_createTodoContent(todo));
-            todoWrapper.appendChild(_createTodoButtons());
+                todoWrapper.appendChild(_createTodoContent(todo));
+            }          
             return todoWrapper;
         }
 
@@ -334,6 +336,9 @@ const TodoView = (() => {
         //used in selectMenu, _refreshView
         const _populateTodoList = (todos) => {
             _clearTodoList();
+            todos.sort((a,b) => {
+                return (a.active == b.active)? 0 : (a.active? -1 : 1);
+            })
             for(let i = 0; i < todos.length; i++){
                 _todoList.appendChild(_TodoDomTools.createTodo(todos[i], i));
             }
