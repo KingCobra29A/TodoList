@@ -8,6 +8,7 @@ import moveSrc from './assets/noun-send-folder-1678334.svg';
 import unfilledCircleSrc from './assets/noun-unfilled-circle-1157067.svg';
 import checkboxSrc from './assets/noun-checkbox-1043038.svg';
 import optionsSrc from './assets/noun-dots-1287551.svg';
+import deleteSrc from './assets/noun-delete-1610849.svg';
 
 
 const TodoView = (() => {
@@ -62,6 +63,19 @@ const TodoView = (() => {
 
         }
 
+        //
+        const required = (element, validator) => {
+            let requiredField = element.querySelector("input");
+            let label = element.querySelector("label");
+            requiredField.required = true;
+            requiredField.setCustomValidity("required field");
+            requiredField.addEventListener('input', (e) => {
+                validator(e.target);
+            });
+            label.classList.add("required-field");
+            return element;
+        } 
+
         //fields is an array: [name, fieldName]
         //
         const createFormField = (fields, label, type) => {
@@ -89,11 +103,44 @@ const TodoView = (() => {
             return wrapper;
         }
 
+        //
+        const createModal = (id, form) => {
+            let modal = document.createElement("div");
+            modal.id = id;
+            modal.classList.add("modal");
+            modal.appendChild(form);
+            modal.addEventListener("click", (e) => {
+                if (e.target == modal) {
+                    modal.parentNode.removeChild(modal);
+                }
+            });
+            document.body.appendChild(modal);
+        }
+
+        const removeModal = () => {
+            try {
+                document.querySelector(".modal").click();
+            }catch{};
+        }
+
+        const prepFormForModal = (modalForm, callback) => {
+            modalForm.classList.add("modal-content");
+            modalForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                callback(e);
+                return false;
+            });    
+        }
+
         return{
             createText,
             createImg,
             createFormField,
+            required,
             createSubmitButton,
+            createModal,
+            removeModal,
+            prepFormForModal,
         }
     })();
 
@@ -108,24 +155,19 @@ const TodoView = (() => {
         console.log("calendar");
     }
 
-    //
+    // HACK
     const checkOffTodoCallback = (e) => {
         let todoLi = e.target.parentNode.parentNode;
         console.log(todoLi);
         TodoController.toggleTodoCompletionStatus(todoLi.id);
         setTimeout(_MenuTools.refreshView(), 10);
-        //e.target.src = checkboxSrc;
-        //e.target.parentNode.classList.add("todo-wrapper-inactive");
-        //console.log(e.target.parentNode)
     }
-
-
 
     //Internal module that houses eventlistener callbacks
     //Exposed callbacks:
     const _Callbacks = (() => {
 
-        const _CategoryBtn = (() => {
+        const _CategorizeTodoBtn = (() => {
 
             let _activeCategoryModal = false;
             let _isModalActive = false;
@@ -200,8 +242,8 @@ const TodoView = (() => {
             }
         })();
 
-        const categorize = _CategoryBtn.categorizeTodoCallback;
-        const removeCategoryModal = _CategoryBtn.removeCategoryModalCallback;
+        const categorize = _CategorizeTodoBtn.categorizeTodoCallback;
+        const removeCategoryModal = _CategorizeTodoBtn.removeCategoryModalCallback;
 
         return {
             categorize,
@@ -285,12 +327,23 @@ const TodoView = (() => {
         //Exposed method: buildCategoryList
         const _MenuBuilder = (() => {
         
+            const _deleteProjectCbk = (currentTarget) => {
+                let menuItem = currentTarget.parentElement.parentElement;
+                setTimeout(buildCategoryList, 0);
+                if(TodoController.deleteCategory(menuItem.id)){
+                    setTimeout( () => document.getElementById("Uncategorized").click(), 0);
+                }
+            }
+
             //lower order fn
             //used by _buildMenuItem
-            const _buildMenuItemImage = (imageSrc, wrapperClasses, imageClasses) => {
+            const _buildMenuItemImage = (imageSrc, wrapperClasses, imageClasses, callback) => {
                 let wrapperSpan = document.createElement("span");
                 wrapperSpan.classList.add(...wrapperClasses);
                 wrapperSpan.appendChild(_Utilities.createImg(imageSrc, imageClasses));
+                if(callback){
+                    wrapperSpan.firstChild.addEventListener('click', (e) => _deleteProjectCbk(e.currentTarget))
+                }
                 return wrapperSpan;
             }
 
@@ -299,19 +352,19 @@ const TodoView = (() => {
             const _buildMenuItem = (label) => {
                 let menuItem = document.createElement("li");
                 menuItem.classList.add('menu-item', 'menu-item-sizing');
-                menuItem.appendChild(_buildMenuItemImage(bulletSrc, ["project-icon-placeholder"], ["menu-bullet"]));
+                menuItem.appendChild(_buildMenuItemImage(bulletSrc, ["project-icon-placeholder"], ["menu-bullet"], null));
                 menuItem.appendChild(_Utilities.createText("h1", label));
-                menuItem.appendChild(_buildMenuItemImage(optionsSrc, ["project-options-wrapper"], ["project-options-inactive", "project-options"]));
+                menuItem.appendChild(_buildMenuItemImage(deleteSrc, ["project-options-wrapper", "project-options-inactive"], [ "project-options"], _deleteProjectCbk));
                 menuItem.id = label;
                 menuItem.addEventListener('click', (e) => _MenuTools.selectMenu(e.currentTarget));
                 menuItem.addEventListener('mouseover', (e) => {
-                    if(e.currentTarget.childNodes[2].firstChild.classList.contains("project-options-inactive")){
-                        e.currentTarget.childNodes[2].firstChild.classList.remove("project-options-inactive")
+                    if(e.currentTarget.childNodes[2].classList.contains("project-options-inactive")){
+                        e.currentTarget.childNodes[2].classList.remove("project-options-inactive")
                     }
                 })
                 menuItem.addEventListener('mouseout', (e) => {
-                    if(!e.currentTarget.childNodes[2].firstChild.classList.contains("project-options-inactive")){
-                        e.currentTarget.childNodes[2].firstChild.classList.add("project-options-inactive")
+                    if(!e.currentTarget.childNodes[2].classList.contains("project-options-inactive")){
+                        e.currentTarget.childNodes[2].classList.add("project-options-inactive")
                     }
                 })
                 return menuItem;
@@ -397,22 +450,25 @@ const TodoView = (() => {
     //Internal Module used to set up add todo button
     const _TodoBtn =(() => {
 
-        let modal;
-
-        const _removeModal = () => {
-            modal.parentNode.removeChild(modal);
-            modal = null;
+        const _validateTitle = (title) => {
+            console.log(title.value);
+            if(!title.value){
+                title.setCustomValidity("required field")
+            }
+            else{
+                title.setCustomValidity("")
+            }
         }
 
         //
         //
-        const submitAddTodoFormCallback = () => {
+        const submitAddTodoFormCallback = (e) => {
             let formContents = document.forms.addTodoForm.elements;
             let title = formContents.todoTitle.value;
             let description = formContents.todoDescription.value;
             
             TodoController.addTodo(title, description, null);
-            _removeModal();
+            _Utilities.removeModal();
             _MenuTools.refreshView(); 
         }
 
@@ -420,39 +476,70 @@ const TodoView = (() => {
         //
         const _createAddTodoModalForm = () => {
             let modalForm = document.createElement("form");
+            let inputsWrapper = document.createElement("p");
+            inputsWrapper.classList.add("form-input-wrapper");
             modalForm.name = "addTodoForm";
             modalForm.appendChild(_Utilities.createText("h1", "Add Todo"));
-            modalForm.appendChild(_Utilities.createFormField(["todoTitle"], "Title", "text"));
-            modalForm.appendChild(_Utilities.createFormField(["todoDescription"], "Description", "text"));
+            inputsWrapper.appendChild(_Utilities.required(_Utilities.createFormField(["todoTitle"], "Title: ", "text"), _validateTitle));
+            inputsWrapper.appendChild(_Utilities.createFormField(["todoDescription"], "Description: ", "text"));
+            modalForm.appendChild(inputsWrapper);
             modalForm.appendChild(_Utilities.createSubmitButton("Add Todo"));
-            modalForm.classList.add("modal-content");
-            modalForm.addEventListener("submit", (e) => {
-                e.preventDefault();
-                submitAddTodoFormCallback(e.target);
-                return false;
-            });    
+            _Utilities.prepFormForModal(modalForm, submitAddTodoFormCallback)
             return modalForm;
         } 
-
-        //lower order fn 
-        //used by setupTodoBtn
-        const _createAddTodoModal = () => {
-            modal = document.createElement("div");
-            modal.id = "add-todo-modal";
-            modal.classList.add("modal");
-            modal.appendChild(_createAddTodoModalForm());
-            modal.addEventListener("click", (e) => {
-                if (e.target == modal) {
-                    modal.parentNode.removeChild(modal);
-                }
-            });
-            document.body.appendChild(modal);
-        }
 
         const init = () => {
             let todoBtn = document.querySelector(".add-todo-btn");
             todoBtn.addEventListener("click", () => {
-                _createAddTodoModal();
+                _Utilities.createModal("add-todo-modal", _createAddTodoModalForm());
+            })
+        }
+
+        return {
+            init,
+        }
+    })();
+
+    const _AddCategoryBtn = (() => {
+
+        const _validateCategory = (category) => {
+            
+            if(!category.value){
+                category.setCustomValidity("required field")
+            }
+            else if(TodoController.getCategories().includes(category.value)){
+                category.setCustomValidity(category.value + " already exists")
+            }
+            else{
+                category.setCustomValidity("")
+            }
+        }
+
+        const submitAddCategoryFormCallback = (e) => {
+            let formContents = document.forms.addCategoryForm.elements;
+            let category = formContents.category.value;
+            TodoController.addCategory(category)
+            _Utilities.removeModal();
+            _MenuTools.refreshView();         
+        }
+
+        const _createAddCategoryModalForm = () => {
+            let modalForm = document.createElement("form");
+            let inputsWrapper = document.createElement("p");
+            inputsWrapper.classList.add("form-input-wrapper");
+            modalForm.name = "addCategoryForm";
+            modalForm.appendChild(_Utilities.createText("h1", "Add Category"));
+            inputsWrapper.appendChild(_Utilities.required(_Utilities.createFormField(["category"], "Category: ", "text"), _validateCategory));
+            modalForm.appendChild(inputsWrapper);
+            modalForm.appendChild(_Utilities.createSubmitButton("Add Category"));
+            _Utilities.prepFormForModal(modalForm, submitAddCategoryFormCallback)
+            return modalForm;
+        }
+
+        const init = () => {
+            let addCategoryBtn = document.querySelector(".add-project-btn");
+            addCategoryBtn.addEventListener("click", () => {
+                _Utilities.createModal("add-category-modal", _createAddCategoryModalForm());
             })
         }
 
@@ -469,6 +556,7 @@ const TodoView = (() => {
         menuItemUncategoried.click();
         _MenuTools.refreshView();
         _TodoBtn.init();
+        _AddCategoryBtn.init();
 
         //Event listener to remove category modal
         window.addEventListener('click', (e) => _Callbacks.removeCategoryModal(e));

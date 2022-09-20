@@ -166,8 +166,10 @@ export const TodoList = (() => {
    const _removeCategory = (category) => {
         if(_categoryDict.hasOwnProperty(category)){
             delete _categoryDict[category];
+            localStorage.setItem(_categoryKey, JSON.stringify(_categoryDict));
         }
         else{
+            console.log("nothing happens")
             //category does not exist in _categoryDict to begin with
         }
    }
@@ -177,7 +179,7 @@ export const TodoList = (() => {
    **
    */
   const remove = (method, payload) => {
-        if(method == category){
+        if(method == "Category"){
             _removeCategory(payload);
         }
         else{

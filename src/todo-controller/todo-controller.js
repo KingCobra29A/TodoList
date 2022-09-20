@@ -29,6 +29,10 @@ export const TodoController = (() => {
         TodoList.add("Todo", {title, description, date});
     }
 
+    const addCategory = (category) => {
+        TodoList.add("Category", {category});
+    }
+
     const toggleTodoCompletionStatus = (id) => {
         let todo = _currentTodos.filter(todo => todo.id == id)[0];
         if(todo.active == true){
@@ -39,13 +43,21 @@ export const TodoController = (() => {
         }
     }
 
+    const deleteCategory = (category) => {
+        let refreshAfter = (_currentCategory.toLowerCase() == "uncategorized" || _currentCategory == category)? true : false;
+        TodoList.remove("Category", category);
+        return refreshAfter;
+    }
+
     return {
         getCategories,
         getTodos,
         selectCategory,
         categorizeTodo,
         addTodo,
-        toggleTodoCompletionStatus,       
+        addCategory,
+        toggleTodoCompletionStatus,
+        deleteCategory,       
     };
 })();
 
