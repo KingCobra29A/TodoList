@@ -10,6 +10,10 @@ export const TodoController = (() => {
 
     }
 
+    const getTodoContentById = (id) => {
+        return _currentTodos.filter((element) => element.id == id)[0]
+    }
+
     const getTodos = () => {
         //TODO, should probably be working off a deep copy?
         _currentTodos = TodoList.query("TodoByCategory", {category:_currentCategory});
@@ -49,15 +53,21 @@ export const TodoController = (() => {
         return refreshAfter;
     }
 
+    const editTodo = (payload) => {
+        TodoList.modify("Todo", payload);
+    }
+
     return {
         getCategories,
         getTodos,
+        getTodoContentById,
         selectCategory,
         categorizeTodo,
         addTodo,
         addCategory,
         toggleTodoCompletionStatus,
-        deleteCategory,       
+        deleteCategory,  
+        editTodo,     
     };
 })();
 
