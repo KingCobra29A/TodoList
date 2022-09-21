@@ -10,6 +10,8 @@
     --menu-item-margin-right: 1rem;
     --menu-item-active-border-radius: 5px;
     --menu-item-width: 17.5rem;
+    --menu-item-height: 2rem;
+    --menu-item-margin: 0 0 0 2rem;
 }
 
 html {
@@ -57,21 +59,22 @@ button > img {
     overflow: auto;
 }
 
-.menu-wrapper {
+.menu {
     width: 20rem;
     height: 100%;
     background-color: var(--menu-background-color);
-}
-
-.menu {
     display: flex;
     flex-direction: column;
-    margin: 1.5rem 0 0 2rem;
+    
 }
 
 .menu-active {
     background-color: var(--active-menu-item);
     border-radius: var(--menu-item-active-border-radius);
+}
+
+.menu > .menu-item:first-child {
+    margin-top: 1.5rem;
 }
 
 .menu-item {
@@ -80,7 +83,11 @@ button > img {
     flex-direction: row;
     align-items: center;
     gap: 10px;
+}
+
+.menu-item-sizing {
     width: var(--menu-item-width);
+    margin: var(--menu-item-margin);
 }
 
 .menu-item:hover {
@@ -89,8 +96,8 @@ button > img {
 }
 
 .icon-placeholder {
-    height: 2rem;
-    width: 2rem;
+    height: var(--menu-item-height);
+    width: var(--menu-item-height);
     padding-left: 10px;
     display: flex;
     justify-content: center;
@@ -98,8 +105,8 @@ button > img {
 }
 
 .project-options-wrapper {
-    height: 2rem;
-    width: 2rem;
+    height: var(--menu-item-height);
+    width: var(--menu-item-height);
     display: flex;
     margin: 0 var(--menu-item-margin-right) 0 auto;
 }
@@ -122,8 +129,8 @@ button > img {
 }
 
 .project-icon-placeholder {
-    height: 2rem;
-    width: 2rem;
+    height: var(--menu-item-height);
+    width: var(--menu-item-height);
     padding-left: 10px;
     display: flex;
     justify-content: center;
@@ -140,14 +147,18 @@ button > img {
     margin: auto;
 }
 
+.projects-header-li {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
 .project-menu-bar-root {
     cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    width: var(--menu-item-width);
-    
+    justify-content: space-between;    
 }
 
 .project-menu-bar-left {
@@ -158,8 +169,8 @@ button > img {
 }
 
 .add-project-btn {
-    height: 2rem;
-    width: 2rem;
+    height: var(--menu-item-height);
+    width: var(--menu-item-height);
     display: flex;
     margin-right: var(--menu-item-margin-right);
 }
@@ -175,8 +186,8 @@ button > img {
 }
 
 .project-list {
-    height: 25rem;
-    overflow: auto;
+    overflow-y: auto;
+    height: calc(100% - var(--menu-item-height));
 }
 
 .todo-list-wrapper {
@@ -204,7 +215,7 @@ button > img {
 }
 
 #todo-list-header > h1 {
-    height: 2rem;
+    height: var(--menu-item-height);
     font-weight: 700;
 }
 

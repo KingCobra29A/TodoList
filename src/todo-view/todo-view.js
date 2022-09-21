@@ -115,6 +115,7 @@ const TodoView = (() => {
                 }
             });
             document.body.appendChild(modal);
+            modal.querySelector("input").focus();
         }
 
         const removeModal = () => {
