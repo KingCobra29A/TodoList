@@ -111,13 +111,30 @@ const TodoView = (() => {
 
     // lower order fn
     // used by createCategoryForm
-    const createSubmitButton = (valueIn) => {
-      const wrapper = document.createElement("p");
+    const createSubmitButton = (submitText) => {
       const btn = document.createElement("input");
       btn.type = "submit";
-      btn.value = valueIn;
-      wrapper.classList.add("submit-btn");
-      wrapper.appendChild(btn);
+      btn.value = submitText;
+      btn.classList.add("submit-btn");
+      return btn;
+    };
+
+    const createCancelButton = () => {
+      const btn = document.createElement("input");
+      btn.type = "button";
+      btn.value = "Cancel";
+      btn.classList.add("cancel-btn");
+      btn.addEventListener("click", () => {
+        removeModal();
+      });
+      return btn;
+    };
+
+    const createFormControls = (submitText) => {
+      const wrapper = document.createElement("p");
+      wrapper.classList.add("form-controls");
+      wrapper.appendChild(createCancelButton());
+      wrapper.appendChild(createSubmitButton(submitText));
       return wrapper;
     };
 
@@ -139,7 +156,9 @@ const TodoView = (() => {
     const removeModal = () => {
       try {
         document.querySelector(".modal").click();
-      } catch {}
+      } catch {
+        /* continue regardles of error */
+      }
     };
 
     const prepFormForModal = (modalForm, callback) => {
@@ -157,209 +176,10 @@ const TodoView = (() => {
       createFormField,
       createRadioFieldset,
       required,
-      createSubmitButton,
       createModal,
       removeModal,
       prepFormForModal,
-    };
-  })();
-
-  //
-  const editTodoCallback = (e) => {
-    const { id } = e.currentTarget.parentElement.parentElement.parentElement;
-    const todo = TodoController.getTodoContentById(id);
-    console.log(todo);
-    TodoBtn.createEditTodoModalForm(todo);
-  };
-
-  //
-  const changeDateCallback = (e) => {
-    console.log("calendar");
-  };
-
-  // HACK
-  const checkOffTodoCallback = (e) => {
-    const todoLi = e.target.parentNode.parentNode;
-    console.log(todoLi);
-    TodoController.toggleTodoCompletionStatus(todoLi.id);
-    setTimeout(MenuTools.refreshView(), 10);
-  };
-
-  // Internal module that houses eventlistener callbacks
-  // Exposed callbacks:
-  const Callbacks = (() => {
-    const MiniModal = (() => {
-      let activeMiniModal = false;
-      let isModalActive = false;
-
-      const getActive = () => isModalActive;
-
-      // lower order fn
-      // used by submitCategoryFormCallback and initView
-      const removeMM = () => {
-        activeMiniModal.parentNode.removeChild(activeMiniModal);
-        activeMiniModal = false;
-        isModalActive = false;
-      };
-
-      const removeMMCbk = (e) => {
-        if (isModalActive && !activeMiniModal.contains(e.target)) {
-          removeMM();
-        }
-      };
-
-      const createMM = (parentElement, inputFormGenerator) => {
-        const inputForm = inputFormGenerator();
-        if (isModalActive) {
-          removeMM();
-        }
-        inputForm.classList.add("mini-modal");
-        activeMiniModal = inputForm;
-        parentElement.appendChild(inputForm);
-        setTimeout(() => (isModalActive = true), 0);
-      };
-
-      return {
-        getActive,
-        removeMM,
-        removeMMCbk,
-        createMM,
-      };
-    })();
-
-    const CategorizeTodoBtn = (() => {
-      // Called when the category modal form is submitted
-      // Todo is categorized and the view is refreshed
-      const submitCategoryFormCallback = (eventTarget) => {
-        const catgorySelection =
-          document.forms.categoryForm.elements.categoryChoice.value;
-        const todoLi = eventTarget.parentNode.parentNode.parentNode;
-        TodoController.categorizeTodo(todoLi.id, catgorySelection);
-        MiniModal.removeMM();
-        MenuTools.refreshView();
-      };
-
-      // lower oder fn
-      // used by categorizeTodoCallback
-      const createCategoryForm = () => {
-        const categories = TodoController.getCategories();
-        const catForm = document.createElement("form");
-        catForm.name = "categoryForm";
-        catForm.appendChild(Utilities.createText("h1", "Change category to:"));
-        catForm.appendChild(
-          Utilities.createRadioFieldset(categories, "categoryChoice", [])
-        );
-        catForm.appendChild(
-          Utilities.createSubmitButton("Submit category choice")
-        );
-        catForm.addEventListener("submit", (e) => {
-          e.preventDefault();
-          submitCategoryFormCallback(e.target);
-          return false;
-        });
-        return catForm;
-      };
-
-      // Creates the form which will categorize the todo, if submitted
-      const categorizeTodoCallback = (e) => {
-        const btnWrapper = e.currentTarget.parentNode;
-        MiniModal.createMM(btnWrapper, createCategoryForm);
-      };
-
-      return {
-        categorizeTodoCallback,
-      };
-    })();
-
-    const categorize = CategorizeTodoBtn.categorizeTodoCallback;
-    const removeMiniModal = MiniModal.removeMMCbk;
-
-    return {
-      categorize,
-      removeMiniModal,
-    };
-  })();
-
-  // Internal module used to create DOM elements based on todos
-  // Exposed method: createTodo
-  const TodoDomTools = (() => {
-    // lower order fn used in createTodoButtons and createTodoContentWrapper
-    // this is invoked 4 times per todo
-    const createTodoBtn = (src, inputClasses, callback) => {
-      const btn = document.createElement("img");
-      btn.classList.add(...inputClasses);
-      btn.src = src;
-      btn.addEventListener("click", (e) => callback(e));
-      return btn;
-    };
-
-    // lower order fn used in createTodoContentWrapper
-    const createTodoButtons = () => {
-      const btnWrapper = document.createElement("div");
-      btnWrapper.classList.add("todo-btn-wrapper");
-      btnWrapper.appendChild(
-        createTodoBtn(editSrc, ["todo-btn", "edit-todo-btn"], editTodoCallback)
-      );
-      btnWrapper.appendChild(
-        createTodoBtn(
-          callendarSrc,
-          ["todo-btn", "change-date-btn"],
-          changeDateCallback
-        )
-      );
-      btnWrapper.appendChild(
-        createTodoBtn(
-          moveSrc,
-          ["todo-btn", "change-categor-btn"],
-          Callbacks.categorize
-        )
-      );
-      return btnWrapper;
-    };
-
-    // lower order fn used in createTodoContentWrapper
-    const createTodoContent = (todo) => {
-      const content = document.createElement("div");
-      content.classList.add("todo-content");
-      content.appendChild(Utilities.createText("h1", todo.title));
-      content.appendChild(Utilities.createText("h2", todo.description));
-      return content;
-    };
-
-    // lower order fn used in createTodo
-    const createTodoContentWrapper = (todo) => {
-      const todoWrapper = document.createElement("div");
-      todoWrapper.classList.add("todo-wrapper");
-      if (todo.active === true) {
-        todoWrapper.appendChild(
-          createTodoBtn(unfilledCircleSrc, ["todo-chip"], checkOffTodoCallback)
-        );
-        todoWrapper.appendChild(createTodoContent(todo));
-        todoWrapper.appendChild(createTodoButtons());
-      } else {
-        todoWrapper.classList.add("todo-wrapper-inactive");
-        todoWrapper.appendChild(
-          createTodoBtn(checkboxSrc, ["todo-chip"], checkOffTodoCallback)
-        );
-        todoWrapper.appendChild(createTodoContent(todo));
-      }
-      return todoWrapper;
-    };
-
-    // returns a li which represents a todo
-    // id of the li is set to index
-    // used in populateTodoList
-    const createTodo = (todo) => {
-      const todoElement = document.createElement("li");
-      todoElement.id = todo.id;
-      todoElement.classList.add("todo-li");
-      todoElement.appendChild(createTodoContentWrapper(todo));
-      todoElement.appendChild(document.createElement("hr"));
-      return todoElement;
-    };
-
-    return {
-      createTodo,
+      createFormControls,
     };
   })();
 
@@ -522,6 +342,211 @@ const TodoView = (() => {
     };
   })();
 
+  //
+  const editTodoCallback = (e) => {
+    const { id } = e.currentTarget.parentElement.parentElement.parentElement;
+    const todo = TodoController.getTodoContentById(id);
+    console.log(todo);
+    TodoBtn.createEditTodoModalForm(todo);
+  };
+
+  //
+  const changeDateCallback = (e) => {
+    console.log("calendar");
+  };
+
+  // HACK
+  const checkOffTodoCallback = (e) => {
+    const todoLi = e.target.parentNode.parentNode;
+    console.log(todoLi);
+    TodoController.toggleTodoCompletionStatus(todoLi.id);
+    setTimeout(MenuTools.refreshView(), 10);
+  };
+
+  // Internal module that houses eventlistener callbacks
+  // Exposed callbacks:
+  const Callbacks = (() => {
+    const MiniModal = (() => {
+      let activeMiniModal = false;
+      let isModalActive = false;
+
+      const getActive = () => isModalActive;
+
+      // lower order fn
+      // used by submitCategoryFormCallback and initView
+      const removeMM = () => {
+        if (isModalActive) {
+          activeMiniModal.parentNode.removeChild(activeMiniModal);
+          activeMiniModal = false;
+          isModalActive = false;
+        }
+      };
+
+      const removeMMCbk = (e) => {
+        if (e) {
+          if (
+            (isModalActive && !activeMiniModal.contains(e.target)) ||
+            e.target.classList.contains("cancel-btn")
+          ) {
+            removeMM();
+          }
+        }
+      };
+
+      const createMM = (parentElement, inputFormGenerator) => {
+        const inputForm = inputFormGenerator();
+        if (isModalActive) {
+          removeMM();
+        }
+        inputForm.classList.add("mini-modal");
+        activeMiniModal = inputForm;
+        parentElement.appendChild(inputForm);
+        isModalActive = true;
+      };
+
+      return {
+        getActive,
+        removeMM,
+        removeMMCbk,
+        createMM,
+      };
+    })();
+
+    const CategorizeTodoBtn = (() => {
+      // Called when the category modal form is submitted
+      // Todo is categorized and the view is refreshed
+      const submitCategoryFormCallback = (eventTarget) => {
+        const catgorySelection =
+          document.forms.categoryForm.elements.categoryChoice.value;
+        const todoLi = eventTarget.parentNode.parentNode.parentNode;
+        TodoController.categorizeTodo(todoLi.id, catgorySelection);
+        MiniModal.removeMM();
+        MenuTools.refreshView();
+      };
+
+      // lower oder fn
+      // used by categorizeTodoCallback
+      const createCategoryForm = () => {
+        const categories = TodoController.getCategories();
+        const catForm = document.createElement("form");
+        catForm.name = "categoryForm";
+        catForm.appendChild(Utilities.createText("h1", "Change category to:"));
+        catForm.appendChild(
+          Utilities.createRadioFieldset(categories, "categoryChoice", [])
+        );
+        catForm.appendChild(Utilities.createFormControls("Submit choice"));
+        catForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          submitCategoryFormCallback(e.target);
+          return false;
+        });
+        return catForm;
+      };
+
+      // Creates the form which will categorize the todo, if submitted
+      const categorizeTodoCallback = (e) => {
+        const btnWrapper = e.currentTarget.parentNode;
+        MiniModal.createMM(btnWrapper, createCategoryForm);
+        e.stopPropagation();
+      };
+
+      return {
+        categorizeTodoCallback,
+      };
+    })();
+
+    const categorize = CategorizeTodoBtn.categorizeTodoCallback;
+    const removeMiniModal = MiniModal.removeMMCbk;
+
+    return {
+      categorize,
+      removeMiniModal,
+    };
+  })();
+
+  // Internal module used to create DOM elements based on todos
+  // Exposed method: createTodo
+  const TodoDomTools = (() => {
+    // lower order fn used in createTodoButtons and createTodoContentWrapper
+    // this is invoked 4 times per todo
+    const createTodoBtn = (src, inputClasses, callback) => {
+      const btn = document.createElement("img");
+      btn.classList.add(...inputClasses);
+      btn.src = src;
+      btn.addEventListener("click", (e) => callback(e));
+      return btn;
+    };
+
+    // lower order fn used in createTodoContentWrapper
+    const createTodoButtons = () => {
+      const btnWrapper = document.createElement("div");
+      btnWrapper.classList.add("todo-btn-wrapper");
+      btnWrapper.appendChild(
+        createTodoBtn(editSrc, ["todo-btn", "edit-todo-btn"], editTodoCallback)
+      );
+      btnWrapper.appendChild(
+        createTodoBtn(
+          callendarSrc,
+          ["todo-btn", "change-date-btn"],
+          changeDateCallback
+        )
+      );
+      btnWrapper.appendChild(
+        createTodoBtn(
+          moveSrc,
+          ["todo-btn", "change-categor-btn"],
+          Callbacks.categorize
+        )
+      );
+      return btnWrapper;
+    };
+
+    // lower order fn used in createTodoContentWrapper
+    const createTodoContent = (todo) => {
+      const content = document.createElement("div");
+      content.classList.add("todo-content");
+      content.appendChild(Utilities.createText("h1", todo.title));
+      content.appendChild(Utilities.createText("h2", todo.description));
+      return content;
+    };
+
+    // lower order fn used in createTodo
+    const createTodoContentWrapper = (todo) => {
+      const todoWrapper = document.createElement("div");
+      todoWrapper.classList.add("todo-wrapper");
+      if (todo.active === true) {
+        todoWrapper.appendChild(
+          createTodoBtn(unfilledCircleSrc, ["todo-chip"], checkOffTodoCallback)
+        );
+        todoWrapper.appendChild(createTodoContent(todo));
+        todoWrapper.appendChild(createTodoButtons());
+      } else {
+        todoWrapper.classList.add("todo-wrapper-inactive");
+        todoWrapper.appendChild(
+          createTodoBtn(checkboxSrc, ["todo-chip"], checkOffTodoCallback)
+        );
+        todoWrapper.appendChild(createTodoContent(todo));
+      }
+      return todoWrapper;
+    };
+
+    // returns a li which represents a todo
+    // id of the li is set to index
+    // used in populateTodoList
+    const createTodo = (todo) => {
+      const todoElement = document.createElement("li");
+      todoElement.id = todo.id;
+      todoElement.classList.add("todo-li");
+      todoElement.appendChild(createTodoContentWrapper(todo));
+      todoElement.appendChild(document.createElement("hr"));
+      return todoElement;
+    };
+
+    return {
+      createTodo,
+    };
+  })();
+
   // Internal Module used to set up add todo button
   const TodoBtn = (() => {
     const validateTitle = (title) => {
@@ -535,7 +560,7 @@ const TodoView = (() => {
 
     //
     //
-    const submitAddTodoFormCallback = (e) => {
+    const submitAddTodoFormCallback = () => {
       const formContents = document.forms.addTodoForm.elements;
       const title = formContents.todoTitle.value;
       const description = formContents.todoDescription.value;
@@ -576,7 +601,7 @@ const TodoView = (() => {
           "textarea"
         )
       );
-      modalForm.appendChild(Utilities.createSubmitButton(formTitle));
+      modalForm.appendChild(Utilities.createFormControls(formTitle));
       Utilities.prepFormForModal(modalForm, callback);
       return modalForm;
     };
@@ -633,7 +658,7 @@ const TodoView = (() => {
       }
     };
 
-    const submitAddCategoryFormCallback = (e) => {
+    const submitAddCategoryFormCallback = () => {
       const formContents = document.forms.addCategoryForm.elements;
       const category = formContents.category.value;
       TodoController.addCategory(category);
@@ -651,7 +676,7 @@ const TodoView = (() => {
           validateCategory
         )
       );
-      modalForm.appendChild(Utilities.createSubmitButton("Add Category"));
+      modalForm.appendChild(Utilities.createFormControls("Add Category"));
       Utilities.prepFormForModal(modalForm, submitAddCategoryFormCallback);
       return modalForm;
     };

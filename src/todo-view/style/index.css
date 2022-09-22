@@ -20,6 +20,10 @@
   --todo-chip-width: 2rem;
   --todo-chip-margin-right: 1rem;
   --todo-options-btn-width: 1rem;
+  --cancel-color: #b5b5b5;
+  --cancel-hover-color: #ababab;
+  --submit-color: #b66454;
+  --submit-color-active: #c66666;
 }
 
 html {
@@ -295,8 +299,36 @@ hr {
   margin: 5px auto;
 }
 
-.submit-btn {
+.form-controls {
+  display: flex;
+  gap: 10px;
   margin: auto auto 5px auto;
+}
+
+.form-controls > input {
+  border: none;
+  border-radius: 5px;
+  height: 2rem;
+  cursor: pointer;
+}
+
+.form-controls > .cancel-btn {
+  background-color: var(--cancel-color);
+  width: 4rem;
+}
+
+.form-controls > .cancel-btn:hover {
+  background-color: var(--cancel-hover-color);
+}
+
+.form-controls > .submit-btn {
+  background-color: var(--submit-color);
+  color: var(--content-background-color);
+  width: 6rem;
+}
+
+.form-controls > .submit-btn:hover {
+  background-color: var(--submit-color-active);
 }
 
 .modal {
@@ -348,7 +380,7 @@ hr {
   height: 4rem;
 }
 
-.modal-content > .submit-btn {
+.modal-content > .form-controls {
   margin: auto auto 1rem auto;
 }
 
