@@ -12,6 +12,8 @@ export const TodoList = (() => {
     description,
     date,
     id,
+    creationDate: new Date(),
+    completionDate: null,
     category: "uncategorized",
     active: true,
   });
@@ -25,6 +27,17 @@ export const TodoList = (() => {
     }
   };
 
+  const reconstructDates = (todoIn) => {
+    const dateKeys = ["completionDate", "creationDate", "date"];
+    const reworkedTodo = todoIn;
+    dateKeys.forEach((key) => {
+      if (reworkedTodo[key] !== null && reworkedTodo[key]) {
+        reworkedTodo[key] = new Date(reworkedTodo[key]);
+      }
+    });
+    return reworkedTodo;
+  };
+
   // Loads the entire contents of localStorage into the todoListArray array
   // TODO: add protection against duplicate entries in the array?
   const localStorageLoadTodo = () => {
@@ -34,7 +47,9 @@ export const TodoList = (() => {
         if (currentKey === categoryKey) {
           categoryDict = JSON.parse(localStorage.getItem(currentKey));
         } else {
-          todoListArray.push(JSON.parse(localStorage.getItem(currentKey)));
+          let todoFromStorage = JSON.parse(localStorage.getItem(currentKey));
+          todoFromStorage = reconstructDates(todoFromStorage);
+          todoListArray.push(todoFromStorage);
         }
       }
     } else {
@@ -46,6 +61,7 @@ export const TodoList = (() => {
   const addTodo = (title, description, date) => {
     const newTodo = Todo(title, description, date, uuidv4());
     todoListArray.push(newTodo);
+    console.log(newTodo.creationDate);
     localStorageStoreTodo(newTodo);
   };
 
@@ -124,12 +140,23 @@ export const TodoList = (() => {
 
   // Lower order fn used by "modify"
   const modifyTodo = (payload) => {
-    const { id } = payload;
-    delete payload.id;
-    for (const property in payload) {
-      todoListArray[getIndexofID(id)][property] = payload[property];
-    }
-    localStorageStoreTodo(todoListArray[getIndexofID(id)]);
+    const todoIndex = getIndexofID(payload.id);
+    const prototypeKeys = Object.keys(Todo());
+    const payloadKeys = Object.keys(payload);
+    prototypeKeys.forEach((key) => {
+      if (key !== "id" && payloadKeys.includes(key)) {
+        try {
+          todoListArray[todoIndex][key] = payload[key];
+          if (key === "active") {
+            todoListArray[todoIndex].completionDate =
+              payload.active === false ? new Date() : null;
+          }
+          localStorageStoreTodo(todoListArray[todoIndex]);
+        } catch {
+          /* Do Nothing */
+        }
+      }
+    });
   };
 
   /*

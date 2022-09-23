@@ -189,8 +189,9 @@ const TodoView = (() => {
     // Internal Internal module used to build the category list
     // Exposed method: buildCategoryList
     const MenuBuilder = (() => {
-      const deleteProjectCbk = (currentTarget) => {
-        const menuItem = currentTarget.parentElement.parentElement;
+      const deleteProjectCbk = (e) => {
+        e.stopPropagation();
+        const menuItem = e.currentTarget.parentElement.parentElement;
         setTimeout(buildCategoryList, 0);
         if (TodoController.deleteCategory(menuItem.id)) {
           setTimeout(() => document.getElementById("Uncategorized").click(), 0);
@@ -210,7 +211,7 @@ const TodoView = (() => {
         wrapperSpan.appendChild(Utilities.createImg(imageSrc, imageClasses));
         if (callback) {
           wrapperSpan.firstChild.addEventListener("click", (e) =>
-            deleteProjectCbk(e.currentTarget)
+            deleteProjectCbk(e)
           );
         }
         return wrapperSpan;
@@ -346,7 +347,6 @@ const TodoView = (() => {
   const editTodoCallback = (e) => {
     const { id } = e.currentTarget.parentElement.parentElement.parentElement;
     const todo = TodoController.getTodoContentById(id);
-    console.log(todo);
     TodoBtn.createEditTodoModalForm(todo);
   };
 
@@ -358,7 +358,6 @@ const TodoView = (() => {
   // HACK
   const checkOffTodoCallback = (e) => {
     const todoLi = e.target.parentNode.parentNode;
-    console.log(todoLi);
     TodoController.toggleTodoCompletionStatus(todoLi.id);
     setTimeout(MenuTools.refreshView(), 10);
   };
@@ -550,7 +549,6 @@ const TodoView = (() => {
   // Internal Module used to set up add todo button
   const TodoBtn = (() => {
     const validateTitle = (title) => {
-      console.log(title.value);
       if (!title.value) {
         title.setCustomValidity("required field");
       } else {
@@ -624,7 +622,6 @@ const TodoView = (() => {
         .getElementById("todoDescription")
         .setAttribute("value", todo.description);
       document.getElementById("todoDescription").innerText = todo.description;
-      console.log(document.getElementById("todoDescription"));
     };
 
     const init = () => {

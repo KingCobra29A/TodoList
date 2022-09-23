@@ -1,30 +1,10 @@
+import compareAsc from "date-fns/compareAsc";
+import compareDesc from "date-fns/compareDesc";
 import { TodoList } from "../todo-model/todo-model";
 
 export const TodoController = (() => {
   let currentTodos;
   let currentCategory;
-
-  const getCategories = () => Object.keys(TodoList.query("Categories", null));
-
-  const getTodoContentById = (id) =>
-    currentTodos.filter((element) => element.id === id)[0];
-
-  const getTodos = () => {
-    // TODO, should probably be working off a deep copy?
-    currentTodos = TodoList.query("TodoByCategory", {
-      category: currentCategory,
-    });
-    return currentTodos;
-  };
-
-  const selectCategory = (categoryIn) => {
-    currentCategory = categoryIn;
-    return getTodos();
-  };
-
-  const categorizeTodo = (id, category) => {
-    TodoList.modify("Todo", { id, category });
-  };
 
   const addTodo = (title, description, date) => {
     TodoList.add("Todo", { title, description, date });
@@ -34,13 +14,57 @@ export const TodoController = (() => {
     TodoList.add("Category", { category });
   };
 
+  const editTodo = (payload) => {
+    TodoList.modify("Todo", payload);
+  };
+
   const toggleTodoCompletionStatus = (id) => {
     const todo = currentTodos.filter((item) => item.id === id)[0];
     if (todo.active === true) {
-      TodoList.modify("Todo", { id, active: false });
+      editTodo({ id, active: false });
     } else {
-      TodoList.modify("Todo", { id, active: true });
+      editTodo({ id, active: true });
     }
+  };
+
+  const categorizeTodo = (id, category) => {
+    editTodo({ id, category });
+  };
+
+  const getCategories = () => Object.keys(TodoList.query("Categories", null));
+
+  const sortTodosDefault = () => {
+    // sort by creation date
+    currentTodos.sort((a, b) => compareAsc(a.creationDate, b.creationDate));
+    // sort by completion status
+    currentTodos.sort((a, b) => {
+      if (a.active === b.active) return 0;
+      if (a.active) return -1;
+      return 1;
+    });
+    // sort completed todos by completion date in ascending order
+    currentTodos.sort((a, b) => {
+      if (a.completionDate && b.completionDate) {
+        return compareDesc(a.completionDate, b.completionDate);
+      }
+      return 0;
+    });
+  };
+
+  const getTodos = () => {
+    currentTodos = TodoList.query("TodoByCategory", {
+      category: currentCategory,
+    });
+    sortTodosDefault();
+    return currentTodos;
+  };
+
+  const getTodoContentById = (id) =>
+    currentTodos.filter((element) => element.id === id)[0];
+
+  const selectCategory = (categoryIn) => {
+    currentCategory = categoryIn;
+    return getTodos();
   };
 
   const deleteCategory = (category) => {
@@ -50,10 +74,6 @@ export const TodoController = (() => {
     );
     TodoList.remove("Category", category);
     return refreshAfter;
-  };
-
-  const editTodo = (payload) => {
-    TodoList.modify("Todo", payload);
   };
 
   return {
