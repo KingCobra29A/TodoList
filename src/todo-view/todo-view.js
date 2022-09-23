@@ -299,7 +299,6 @@ const TodoView = (() => {
     // used in selectMenu, _refreshView
     const populateTodoList = (todos) => {
       clearTodoList();
-      todos.sort((a, b) => (a.active == b.active ? 0 : a.active ? -1 : 1));
       for (let i = 0; i < todos.length; i += 1) {
         todoList.appendChild(TodoDomTools.createTodo(todos[i], i));
       }
@@ -332,13 +331,15 @@ const TodoView = (() => {
 
     //
     //
-    const refreshView = () => {
-      MenuBuilder.buildCategoryList();
+    const refreshTodos = () => {
       populateTodoList(TodoController.getTodos());
     };
 
+    const refreshCategories = MenuBuilder.buildCategoryList;
+
     return {
-      refreshView,
+      refreshTodos,
+      refreshCategories,
       selectMenu,
     };
   })();
@@ -359,7 +360,7 @@ const TodoView = (() => {
   const checkOffTodoCallback = (e) => {
     const todoLi = e.target.parentNode.parentNode;
     TodoController.toggleTodoCompletionStatus(todoLi.id);
-    setTimeout(MenuTools.refreshView(), 10);
+    setTimeout(MenuTools.refreshTodos(), 10);
   };
 
   // Internal module that houses eventlistener callbacks
@@ -420,7 +421,7 @@ const TodoView = (() => {
         const todoLi = eventTarget.parentNode.parentNode.parentNode;
         TodoController.categorizeTodo(todoLi.id, catgorySelection);
         MiniModal.removeMM();
-        MenuTools.refreshView();
+        MenuTools.refreshTodos();
       };
 
       // lower oder fn
@@ -562,10 +563,11 @@ const TodoView = (() => {
       const formContents = document.forms.addTodoForm.elements;
       const title = formContents.todoTitle.value;
       const description = formContents.todoDescription.value;
+      const category = formContents.todoCategory.value;
 
-      TodoController.addTodo(title, description, null);
+      TodoController.addTodo(title, description, category, null);
       Utilities.removeModal();
-      MenuTools.refreshView();
+      MenuTools.refreshTodos();
     };
 
     const submitEditTodoFormCallback = (idIn) => {
@@ -576,7 +578,7 @@ const TodoView = (() => {
         const description = formContents.todoDescription.value;
         TodoController.editTodo({ id, title, description });
         Utilities.removeModal();
-        MenuTools.refreshView();
+        MenuTools.refreshTodos();
       };
     };
 
@@ -584,21 +586,28 @@ const TodoView = (() => {
     //
     const createTodoModalForm = (formTitle, name, callback) => {
       const modalForm = document.createElement("form");
+      const titleField = Utilities.required(
+        Utilities.createFormField("todoTitle", "Title: ", "text"),
+        validateTitle
+      );
+      const descriptionField = Utilities.createFormField(
+        "todoDescription",
+        "Description: ",
+        "textarea"
+      );
+      const categoryField = Utilities.createFormField(
+        "todoCategory",
+        "Category: ",
+        "text"
+      );
+      categoryField
+        .querySelector("input")
+        .setAttribute("value", TodoController.getCurrentCategory());
       modalForm.name = name;
       modalForm.appendChild(Utilities.createText("h1", formTitle));
-      modalForm.appendChild(
-        Utilities.required(
-          Utilities.createFormField("todoTitle", "Title: ", "text"),
-          validateTitle
-        )
-      );
-      modalForm.appendChild(
-        Utilities.createFormField(
-          "todoDescription",
-          "Description: ",
-          "textarea"
-        )
-      );
+      modalForm.appendChild(titleField);
+      modalForm.appendChild(descriptionField);
+      modalForm.appendChild(categoryField);
       modalForm.appendChild(Utilities.createFormControls(formTitle));
       Utilities.prepFormForModal(modalForm, callback);
       return modalForm;
@@ -660,7 +669,7 @@ const TodoView = (() => {
       const category = formContents.category.value;
       TodoController.addCategory(category);
       Utilities.removeModal();
-      MenuTools.refreshView();
+      MenuTools.refreshCategories();
     };
 
     const createAddCategoryModalForm = () => {
@@ -701,7 +710,8 @@ const TodoView = (() => {
       MenuTools.selectMenu(e.currentTarget)
     );
     menuItemUncategoried.click();
-    MenuTools.refreshView();
+    MenuTools.refreshCategories();
+    MenuTools.refreshTodos();
     TodoBtn.init();
     AddCategoryBtn.init();
 

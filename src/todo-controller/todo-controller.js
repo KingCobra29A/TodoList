@@ -6,8 +6,8 @@ export const TodoController = (() => {
   let currentTodos;
   let currentCategory;
 
-  const addTodo = (title, description, date) => {
-    TodoList.add("Todo", { title, description, date });
+  const addTodo = (title, description, category, date) => {
+    TodoList.add("Todo", { title, description, category, date });
   };
 
   const addCategory = (category) => {
@@ -32,10 +32,11 @@ export const TodoController = (() => {
   };
 
   const getCategories = () => Object.keys(TodoList.query("Categories", null));
+  const getCurrentCategory = () => currentCategory;
 
   const sortTodosDefault = () => {
     // sort by creation date
-    currentTodos.sort((a, b) => compareAsc(a.creationDate, b.creationDate));
+    currentTodos.sort((a, b) => compareDesc(a.creationDate, b.creationDate));
     // sort by completion status
     currentTodos.sort((a, b) => {
       if (a.active === b.active) return 0;
@@ -78,6 +79,7 @@ export const TodoController = (() => {
 
   return {
     getCategories,
+    getCurrentCategory,
     getTodos,
     getTodoContentById,
     selectCategory,

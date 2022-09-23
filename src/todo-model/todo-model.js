@@ -7,14 +7,14 @@ export const TodoList = (() => {
   // let _addCallback = todoController.modelCallback;
   // let _queryCallback = todoController.modelCallback;
 
-  const Todo = (title, description, date, id) => ({
+  const Todo = (title, description, category, date, id) => ({
     title,
     description,
     date,
     id,
     creationDate: new Date(),
     completionDate: null,
-    category: "uncategorized",
+    category,
     active: true,
   });
 
@@ -58,10 +58,9 @@ export const TodoList = (() => {
   };
 
   // Lower order fn used by "add"
-  const addTodo = (title, description, date) => {
-    const newTodo = Todo(title, description, date, uuidv4());
+  const addTodo = (title, description, category, date) => {
+    const newTodo = Todo(title, description, category, date, uuidv4());
     todoListArray.push(newTodo);
-    console.log(newTodo.creationDate);
     localStorageStoreTodo(newTodo);
   };
 
@@ -83,7 +82,12 @@ export const TodoList = (() => {
   const add = (method, payload) => {
     if (method === "Todo") {
       // TODO: add validation to these parameters
-      addTodo(payload.title, payload.description, payload.date);
+      addTodo(
+        payload.title,
+        payload.description,
+        payload.category,
+        payload.date
+      );
       // TODO: need to trigger event for view
     } else if (method === "Category") {
       addCategory(payload.category);
