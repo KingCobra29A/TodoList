@@ -49,6 +49,15 @@ const TodoView = (() => {
       return inputElement;
     };
 
+    const createDateInput = (name) => {
+      const inputElement = document.createElement("input");
+      inputElement.type = "date";
+      inputElement.id = name;
+      inputElement.name = name;
+      inputElement.min = "2022-09-00";
+      return inputElement;
+    };
+
     //
     const createRadioInput = (value, fieldsetName) => {
       const inputElement = document.createElement("input");
@@ -87,6 +96,10 @@ const TodoView = (() => {
         wrapper.classList.add("input-field");
         wrapper.appendChild(createLabel(name, label));
         wrapper.appendChild(createTextarea(name));
+      } else if (type === "date") {
+        wrapper.classList.add("input-field");
+        wrapper.appendChild(createLabel(name, label));
+        wrapper.appendChild(createDateInput(name));
       } else {
         wrapper.classList.add("input-field");
         wrapper.appendChild(createLabel(name, label));
@@ -564,8 +577,9 @@ const TodoView = (() => {
       const title = formContents.todoTitle.value;
       const description = formContents.todoDescription.value;
       const category = formContents.todoCategory.value;
+      const deadline = formContents.todoDeadline.valueAsDate;
 
-      TodoController.addTodo(title, description, category, null);
+      TodoController.addTodo(title, description, category, deadline);
       Utilities.removeModal();
       MenuTools.refreshTodos();
     };
@@ -595,6 +609,11 @@ const TodoView = (() => {
         "Description: ",
         "textarea"
       );
+      const deadlineField = Utilities.createFormField(
+        "todoDeadline",
+        "Deadline: ",
+        "date"
+      );
       const categoryField = Utilities.createFormField(
         "todoCategory",
         "Category: ",
@@ -607,6 +626,7 @@ const TodoView = (() => {
       modalForm.appendChild(Utilities.createText("h1", formTitle));
       modalForm.appendChild(titleField);
       modalForm.appendChild(descriptionField);
+      modalForm.appendChild(deadlineField);
       modalForm.appendChild(categoryField);
       modalForm.appendChild(Utilities.createFormControls(formTitle));
       Utilities.prepFormForModal(modalForm, callback);
