@@ -32,7 +32,8 @@ export const TodoController = (() => {
   };
 
   const getCategories = () => Object.keys(TodoList.query("Categories", null));
-  const getCurrentCategory = () => currentCategory;
+  const getCurrentCategoryIndex = () =>
+    getCategories().indexOf(currentCategory);
 
   const sortTodosDefault = () => {
     // sort by creation date
@@ -79,7 +80,7 @@ export const TodoController = (() => {
 
   return {
     getCategories,
-    getCurrentCategory,
+    getCurrentCategoryIndex,
     getTodos,
     getTodoContentById,
     selectCategory,

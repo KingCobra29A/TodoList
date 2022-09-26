@@ -140,7 +140,7 @@ button > img {
 
 .project-icon-placeholder {
   height: var(--menu-item-height);
-  width: var(--menu-item-height);
+  min-width: var(--menu-item-height);
   padding-left: 10px;
   display: flex;
   justify-content: center;
@@ -372,6 +372,13 @@ hr {
 
 .input-field > input {
   width: calc(100% - var(--modal-left-right-margin));
+}
+
+.input-field > select {
+  width: 6rem;
+  background-color: var(--modal-content-background-color);
+  border: 1px solid black;
+  border-radius: 3px;
 }
 
 .input-field > textarea {
