@@ -1,14 +1,15 @@
+import isBefore from "date-fns/isBefore";
+import addDays from "date-fns/addDays";
+import formatDistace from "date-fns/formatDistance";
 import "./style/css-reset.css";
 import "./style/index.css";
 import { TodoController } from "../todo-controller/todo-controller";
 import bulletSrc from "./assets/noun-circle-5147182.svg";
 import editSrc from "./assets/noun-edit-3094235.svg";
-import callendarSrc from "./assets/noun-schedule-4064788.svg";
-import moveSrc from "./assets/noun-send-folder-1678334.svg";
 import unfilledCircleSrc from "./assets/noun-unfilled-circle-1157067.svg";
 import checkboxSrc from "./assets/noun-checkbox-1043038.svg";
 import optionsSrc from "./assets/noun-dots-1287551.svg";
-import deleteSrc from "./assets/noun-delete-1610849.svg";
+import deleteSrc from "./assets/noun-trash-3552557.svg";
 
 const TodoView = (() => {
   const todoListHeader = document.getElementById("todo-list-header");
@@ -403,6 +404,30 @@ const TodoView = (() => {
       return btn;
     };
 
+    const createTodoDeadlineDisplay = (deadline) => {
+      const wrapper = document.createElement("span");
+      wrapper.classList.add("todo-deadline");
+      if (deadline) {
+        let displayString;
+        const isPastDue = isBefore(deadline, new Date());
+        const isDueWithinWeek = isBefore(deadline, addDays(new Date(), 7));
+        if (isPastDue) {
+          displayString = formatDistace(deadline, new Date());
+          displayString = displayString.concat(" overdue");
+          wrapper.classList.add("deadline-overdue");
+        } else if (isDueWithinWeek) {
+          displayString = formatDistace(new Date(), deadline);
+          displayString = "Due in ".concat(displayString);
+          wrapper.classList.add("deadline-upcoming");
+        } else {
+          displayString = deadline.toISOString().substr(0, 10);
+        }
+        wrapper.appendChild(Utilities.createText("h2", displayString));
+      }
+
+      return wrapper;
+    };
+
     // lower order fn used in createTodoContentWrapper
     const createTodoButtons = () => {
       const btnWrapper = document.createElement("div");
@@ -431,6 +456,7 @@ const TodoView = (() => {
           createTodoBtn(unfilledCircleSrc, ["todo-chip"], checkOffTodoCallback)
         );
         todoWrapper.appendChild(createTodoContent(todo));
+        todoWrapper.appendChild(createTodoDeadlineDisplay(todo.date));
         todoWrapper.appendChild(createTodoButtons());
       } else {
         todoWrapper.classList.add("todo-wrapper-inactive");
@@ -476,9 +502,9 @@ const TodoView = (() => {
       const title = formContents.todoTitle.value;
       const description = formContents.todoDescription.value;
       const category = formContents.todoCategory.value;
-      const deadline = formContents.todoDeadline.valueAsDate;
+      const date = formContents.todoDeadline.valueAsDate;
 
-      TodoController.addTodo(title, description, category, deadline);
+      TodoController.addTodo(title, description, category, date);
       Utilities.removeModal();
       MenuTools.refreshTodos();
     };
@@ -490,7 +516,9 @@ const TodoView = (() => {
         const title = formContents.todoTitle.value;
         const description = formContents.todoDescription.value;
         const category = formContents.todoCategory.value;
-        TodoController.editTodo({ id, title, description, category });
+        const date = formContents.todoDeadline.valueAsDate;
+
+        TodoController.editTodo({ id, title, description, category, date });
         Utilities.removeModal();
         MenuTools.refreshTodos();
       };
@@ -515,13 +543,13 @@ const TodoView = (() => {
         "date"
       );
       const categoryField = Utilities.createSelectInput(
-        TodoController.getCategories(),
+        ["Uncategorized"].concat(TodoController.getCategories()),
         "todoCategory",
         "Category: "
       );
       try {
         categoryField.querySelector("select").options[
-          TodoController.getCurrentCategoryIndex()
+          TodoController.getCurrentCategoryIndex() + 1
         ].defaultSelected = true;
       } catch {
         /* do nothing, but HACK, the need for this try box should be removed */
@@ -555,6 +583,13 @@ const TodoView = (() => {
       document
         .getElementById("todoDescription")
         .setAttribute("value", todo.description);
+      try {
+        document
+          .getElementById("todoDeadline")
+          .setAttribute("value", todo.date.toISOString().substr(0, 10));
+      } catch {
+        /* do nothing, not all todos have deadlines defined */
+      }
       document.getElementById("todoDescription").innerText = todo.description;
     };
 

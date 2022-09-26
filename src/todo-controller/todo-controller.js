@@ -38,13 +38,26 @@ export const TodoController = (() => {
   const sortTodosDefault = () => {
     // sort by creation date
     currentTodos.sort((a, b) => compareDesc(a.creationDate, b.creationDate));
+    // sort by existance of due date
+    currentTodos.sort((a, b) => {
+      if (a.date === b.date) return 0;
+      if (a.date) return -1;
+      return 1;
+    });
+    // sort todos by due date in ascending order
+    currentTodos.sort((a, b) => {
+      if (a.date && b.date) {
+        return compareAsc(a.date, b.date);
+      }
+      return 0;
+    });
     // sort by completion status
     currentTodos.sort((a, b) => {
       if (a.active === b.active) return 0;
       if (a.active) return -1;
       return 1;
     });
-    // sort completed todos by completion date in ascending order
+    // sort completed todos by completion date in descending order
     currentTodos.sort((a, b) => {
       if (a.completionDate && b.completionDate) {
         return compareDesc(a.completionDate, b.completionDate);
