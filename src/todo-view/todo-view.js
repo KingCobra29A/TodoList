@@ -47,6 +47,7 @@ const TodoView = (() => {
       inputElement.type = "text";
       inputElement.id = name;
       inputElement.name = name;
+      inputElement.autocomplete = "off";
       return inputElement;
     };
 
@@ -78,16 +79,6 @@ const TodoView = (() => {
     };
 
     //
-    const createRadioInput = (value, fieldsetName) => {
-      const inputElement = document.createElement("input");
-      inputElement.type = "radio";
-      inputElement.id = value;
-      inputElement.value = value;
-      inputElement.name = fieldsetName;
-      return inputElement;
-    };
-
-    //
     const createTextarea = (name) => {
       const textareaElement = document.createElement("textarea");
       textareaElement.id = name;
@@ -97,15 +88,20 @@ const TodoView = (() => {
 
     //
     const required = (element, validator) => {
+      const wrapper = element;
       const requiredField = element.querySelector("input");
       const label = element.querySelector("label");
+      const ariaSpan = document.createElement("span");
+      ariaSpan.classList.add("error");
+      ariaSpan.setAttribute("aria-live", "polite");
       requiredField.required = true;
       requiredField.setCustomValidity("required field");
       requiredField.addEventListener("input", (e) => {
         validator(e.target);
       });
       label.classList.add("required-field");
-      return element;
+      wrapper.appendChild(ariaSpan);
+      return wrapper;
     };
 
     //
@@ -125,20 +121,6 @@ const TodoView = (() => {
         wrapper.appendChild(createTextInput(name));
       }
       return wrapper;
-    };
-
-    //
-    const createRadioFieldset = (values, fieldsetName, classes) => {
-      const fieldsetElement = document.createElement("fieldset");
-      fieldsetElement.classList.add(...classes);
-      for (let i = 0; i < values.length; i += 1) {
-        const wrapper = document.createElement("p");
-        wrapper.classList.add("radio-field");
-        wrapper.appendChild(createRadioInput(values[i], fieldsetName));
-        wrapper.appendChild(createLabel(values[i], values[i]));
-        fieldsetElement.appendChild(wrapper);
-      }
-      return fieldsetElement;
     };
 
     // lower order fn
@@ -207,7 +189,6 @@ const TodoView = (() => {
       createImg,
       createFormField,
       createSelectInput,
-      createRadioFieldset,
       required,
       createModal,
       removeModal,
@@ -420,6 +401,12 @@ const TodoView = (() => {
     TodoBtn.createEditTodoModalForm(todo);
   };
 
+  const deleteTodoCallback = (e) => {
+    const { id } = e.currentTarget.parentElement.parentElement.parentElement;
+    TodoController.deleteTodo(id);
+    MenuTools.refreshTodos();
+  };
+
   // HACK
   const checkOffTodoCallback = (e) => {
     const todoLi = e.target.parentNode.parentNode;
@@ -465,12 +452,10 @@ const TodoView = (() => {
     };
 
     // lower order fn used in createTodoContentWrapper
-    const createTodoButtons = () => {
+    const createTodoButtons = (src, classes, cbk) => {
       const btnWrapper = document.createElement("div");
       btnWrapper.classList.add("todo-btn-wrapper");
-      btnWrapper.appendChild(
-        createTodoBtn(editSrc, ["todo-btn", "edit-todo-btn"], editTodoCallback)
-      );
+      btnWrapper.appendChild(createTodoBtn(src, classes, cbk));
       return btnWrapper;
     };
 
@@ -493,13 +478,26 @@ const TodoView = (() => {
         );
         todoWrapper.appendChild(createTodoContent(todo));
         todoWrapper.appendChild(createTodoDeadlineDisplay(todo.date));
-        todoWrapper.appendChild(createTodoButtons());
+        todoWrapper.appendChild(
+          createTodoButtons(
+            editSrc,
+            ["todo-btn", "edit-todo-btn"],
+            editTodoCallback
+          )
+        );
       } else {
         todoWrapper.classList.add("todo-wrapper-inactive");
         todoWrapper.appendChild(
           createTodoBtn(checkboxSrc, ["todo-chip"], checkOffTodoCallback)
         );
         todoWrapper.appendChild(createTodoContent(todo));
+        todoWrapper.appendChild(
+          createTodoButtons(
+            deleteSrc,
+            ["todo-btn", "delete-todo-btn"],
+            deleteTodoCallback
+          )
+        );
       }
       return todoWrapper;
     };
@@ -524,10 +522,13 @@ const TodoView = (() => {
   // Internal Module used to set up add todo button
   const TodoBtn = (() => {
     const validateTitle = (title) => {
+      const ariaSpan = title.nextSibling;
       if (!title.value) {
         title.setCustomValidity("required field");
+        ariaSpan.innerText = "Title is a requried field";
       } else {
         title.setCustomValidity("");
+        ariaSpan.innerText = "";
       }
     };
 
@@ -535,14 +536,17 @@ const TodoView = (() => {
     //
     const submitAddTodoFormCallback = () => {
       const formContents = document.forms.addTodoForm.elements;
-      const title = formContents.todoTitle.value;
-      const description = formContents.todoDescription.value;
-      const category = formContents.todoCategory.value;
-      const date = formContents.todoDeadline.valueAsDate;
-
-      TodoController.addTodo(title, description, category, date);
-      Utilities.removeModal();
-      MenuTools.refreshTodos();
+      if (formContents.todoTitle.validity.valid) {
+        const title = formContents.todoTitle.value;
+        const description = formContents.todoDescription.value;
+        const category = formContents.todoCategory.value;
+        const date = formContents.todoDeadline.valueAsDate;
+        TodoController.addTodo(title, description, category, date);
+        Utilities.removeModal();
+        MenuTools.refreshTodos();
+      } else {
+        validateTitle(formContents.todoTitle);
+      }
     };
 
     const submitEditTodoFormCallback = (idIn) => {
@@ -592,6 +596,7 @@ const TodoView = (() => {
       }
 
       modalForm.name = name;
+      modalForm.noValidate = true;
       modalForm.appendChild(Utilities.createText("h1", formTitle));
       modalForm.appendChild(titleField);
       modalForm.appendChild(descriptionField);
@@ -651,21 +656,31 @@ const TodoView = (() => {
 
   const AddCategoryBtn = (() => {
     const validateCategory = (category) => {
+      const ariaSpan = category.nextSibling;
       if (!category.value) {
         category.setCustomValidity("required field");
-      } else if (TodoController.getCategories().includes(category.value)) {
+        ariaSpan.innerText = "Category is a required field";
+      } else if (
+        TodoController.getCategories().includes(category.value) ||
+        category.value.toLowerCase() === "today"
+      ) {
         category.setCustomValidity(`${category.value} already exists`);
+        ariaSpan.innerText = `${category.value} already exists`;
       } else {
         category.setCustomValidity("");
+        ariaSpan.innerText = "";
       }
     };
 
     const submitAddCategoryFormCallback = () => {
-      const formContents = document.forms.addCategoryForm.elements;
-      const category = formContents.category.value;
-      TodoController.addCategory(category);
-      Utilities.removeModal();
-      MenuTools.refreshCategories();
+      const { category } = document.forms.addCategoryForm.elements;
+      if (category.validity.valid) {
+        TodoController.addCategory(category.value);
+        Utilities.removeModal();
+        MenuTools.refreshCategories();
+      } else {
+        validateCategory(category);
+      }
     };
 
     const createAddCategoryModalForm = () => {
@@ -679,6 +694,7 @@ const TodoView = (() => {
         )
       );
       modalForm.appendChild(Utilities.createFormControls("Add Category"));
+      modalForm.noValidate = true;
       Utilities.prepFormForModal(modalForm, submitAddCategoryFormCallback);
       return modalForm;
     };

@@ -186,8 +186,18 @@ export const TodoList = (() => {
       delete categoryDict[category];
       localStorage.setItem(categoryKey, JSON.stringify(categoryDict));
     } else {
-      console.log("nothing happens");
       // category does not exist in categoryDict to begin with
+    }
+  };
+
+  const removeTodo = (id) => {
+    const todoToDelete = todoListArray.filter(
+      (element) => element.id === id
+    )[0];
+    const index = todoListArray.indexOf(todoToDelete);
+    if (index !== -1) {
+      todoListArray.splice(index, 1);
+      localStorage.removeItem(id);
     }
   };
 
@@ -198,6 +208,8 @@ export const TodoList = (() => {
   const remove = (method, payload) => {
     if (method === "Category") {
       removeCategory(payload);
+    } else if (method === "Todo") {
+      removeTodo(payload);
     } else {
       // invalid method
     }

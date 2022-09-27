@@ -107,6 +107,10 @@ export const TodoController = (() => {
     return refreshAfter;
   };
 
+  const deleteTodo = (id) => {
+    TodoList.remove("Todo", id);
+  };
+
   return {
     getCategories,
     getCurrentCategoryIndex,
@@ -119,6 +123,7 @@ export const TodoController = (() => {
     addCategory,
     toggleTodoCompletionStatus,
     deleteCategory,
+    deleteTodo,
     editTodo,
   };
 })();

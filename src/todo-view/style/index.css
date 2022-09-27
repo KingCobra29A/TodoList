@@ -26,6 +26,7 @@
   --cancel-hover-color: #ababab;
   --submit-color: #b66454;
   --submit-color-active: #c66666;
+  --error-color: red;
 }
 
 html {
@@ -285,6 +286,18 @@ hr {
   position: relative;
 }
 
+.todo-wrapper-inactive .todo-btn-wrapper {
+  margin: 0 5px 0 auto;
+}
+
+.delete-todo-btn {
+  transition: transform 100ms ease-in-out;
+}
+
+.delete-todo-btn:hover {
+  transform: scale(1.2);
+}
+
 .todo-btn {
   height: var(--todo-options-btn-width);
   width: var(--todo-options-btn-width);
@@ -427,5 +440,9 @@ hr {
 
 .required-field:before {
   content: "* ";
-  color: red;
+  color: var(--error-color);
+}
+
+.error {
+  color: var(--error-color);
 }
