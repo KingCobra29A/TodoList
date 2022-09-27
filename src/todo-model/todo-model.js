@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import isBefore from "date-fns/isBefore";
 
 export const TodoList = (() => {
   const todoListArray = [];
@@ -116,9 +117,11 @@ export const TodoList = (() => {
     });
 
   // Lower order fn used by "query"
-  const getTodoByDate = (date) => {
-    // TODO, should use a date library probably
-  };
+  const getTodoByDate = (date) =>
+    todoListArray.filter((element) => {
+      if (element.date === null) return false;
+      return element.active && isBefore(element.date, date);
+    });
 
   /*
    **
@@ -129,13 +132,13 @@ export const TodoList = (() => {
       return getTodoByCategory(payload.category);
     }
     if (method === "TodoByDate") {
-      // _queryCallback("query", getTodoByDate(payload.date)); //Arguements are assumed
-    } else if (method === "Categories") {
-      return JSON.parse(JSON.stringify(categoryDict));
-    } else {
-      return null;
-      // invalid method
+      return getTodoByDate(payload.date);
     }
+    if (method === "Categories") {
+      return JSON.parse(JSON.stringify(categoryDict));
+    }
+    return null;
+    // invalid method
   };
 
   // Lower order fn

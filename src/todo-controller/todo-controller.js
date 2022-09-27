@@ -1,5 +1,6 @@
 import compareAsc from "date-fns/compareAsc";
 import compareDesc from "date-fns/compareDesc";
+import addDays from "date-fns/addDays";
 import { TodoList } from "../todo-model/todo-model";
 
 export const TodoController = (() => {
@@ -67,9 +68,24 @@ export const TodoController = (() => {
   };
 
   const getTodos = () => {
-    currentTodos = TodoList.query("TodoByCategory", {
-      category: currentCategory,
+    if (currentCategory === "getTodosByDate") {
+      currentTodos = TodoList.query("TodoByDate", {
+        date: addDays(new Date(), 1),
+      });
+    } else {
+      currentTodos = TodoList.query("TodoByCategory", {
+        category: currentCategory,
+      });
+    }
+    sortTodosDefault();
+    return currentTodos;
+  };
+
+  const getUpcomingTodos = () => {
+    currentTodos = TodoList.query("TodoByDate", {
+      date: addDays(new Date(), 1),
     });
+    currentCategory = "getTodosByDate";
     sortTodosDefault();
     return currentTodos;
   };
@@ -95,6 +111,7 @@ export const TodoController = (() => {
     getCategories,
     getCurrentCategoryIndex,
     getTodos,
+    getUpcomingTodos,
     getTodoContentById,
     selectCategory,
     categorizeTodo,

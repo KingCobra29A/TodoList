@@ -165,7 +165,6 @@ button > img {
 }
 
 .project-menu-bar-root {
-  cursor: pointer;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -179,7 +178,12 @@ button > img {
   align-items: center;
 }
 
+.project-menu-bar-root h1 {
+  cursor: default;
+}
+
 .add-project-btn {
+  cursor: pointer;
   height: var(--menu-item-height);
   width: var(--menu-item-height);
   display: flex;
@@ -261,7 +265,7 @@ hr {
 
 .todo-deadline {
   margin: 0 0 0 auto;
-  min-width: 9rem;
+  min-width: 10rem;
 }
 
 .deadline-upcoming {
@@ -340,7 +344,7 @@ hr {
 .form-controls > .submit-btn {
   background-color: var(--submit-color);
   color: var(--content-background-color);
-  width: 6rem;
+  width: 7rem;
 }
 
 .form-controls > .submit-btn:hover {
@@ -374,6 +378,15 @@ hr {
 
 #add-category-modal > .modal-content {
   height: 15rem;
+}
+
+#delete-category-modal > .modal-content {
+  height: 8rem;
+}
+
+#delete-category-modal h1 {
+  margin: auto;
+  font-size: 2rem;
 }
 
 .input-field {

@@ -222,13 +222,39 @@ const TodoView = (() => {
     // Internal Internal module used to build the category list
     // Exposed method: buildCategoryList
     const MenuBuilder = (() => {
+      const createDeleteCategoryModalForm = (e) => {
+        const menuItem = e.currentTarget.parentElement.parentElement;
+        const deleteCategoryForm = document.createElement("form");
+        const title = Utilities.createText("h1", "Confirm delete category");
+        const buttons = Utilities.createFormControls("Delete Category");
+        deleteCategoryForm.classList.add("modal-content");
+        deleteCategoryForm.appendChild(title);
+        deleteCategoryForm.appendChild(buttons);
+        deleteCategoryForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          setTimeout(buildCategoryList, 0);
+          if (TodoController.deleteCategory(menuItem.id)) {
+            setTimeout(
+              () => document.getElementById("Uncategorized").click(),
+              0
+            );
+          }
+          Utilities.removeModal();
+        });
+        return deleteCategoryForm;
+      };
+
       const deleteProjectCbk = (e) => {
         e.stopPropagation();
-        const menuItem = e.currentTarget.parentElement.parentElement;
-        setTimeout(buildCategoryList, 0);
-        if (TodoController.deleteCategory(menuItem.id)) {
-          setTimeout(() => document.getElementById("Uncategorized").click(), 0);
-        }
+        Utilities.createModal(
+          "delete-category-modal",
+          createDeleteCategoryModalForm(e)
+        );
+        // fudge
+        // setTimeout(buildCategoryList, 0);
+        // if (TodoController.deleteCategory(menuItem.id)) {
+        //  setTimeout(() => document.getElementById("Uncategorized").click(), 0);
+        // }
       };
 
       // lower order fn
@@ -339,8 +365,13 @@ const TodoView = (() => {
 
     // lower order fn
     // used in selectMenu
-    const updateTodoListHeader = () => {
-      const textNode = document.createTextNode(currentCategory.id);
+    const updateTodoListHeader = (byDate) => {
+      let textNode;
+      if (byDate) {
+        textNode = document.createTextNode("Due Today");
+      } else {
+        textNode = document.createTextNode(currentCategory.id);
+      }
       const todoListHeaderH1 = todoListHeader.childNodes[1];
       todoListHeaderH1.removeChild(todoListHeaderH1.childNodes[0]);
       todoListHeader.childNodes[1].appendChild(textNode);
@@ -358,8 +389,13 @@ const TodoView = (() => {
     //
     const selectMenu = (eTarget) => {
       handleMenuActiveClass(eTarget);
-      updateTodoListHeader();
-      populateTodoList(TodoController.selectCategory(eTarget.id));
+      if (eTarget.id === "today") {
+        updateTodoListHeader(true);
+        populateTodoList(TodoController.getUpcomingTodos());
+      } else {
+        updateTodoListHeader(false);
+        populateTodoList(TodoController.selectCategory(eTarget.id));
+      }
     };
 
     //
@@ -666,9 +702,13 @@ const TodoView = (() => {
   //
   const initView = () => {
     const menuItemUncategoried = document.getElementById("Uncategorized");
-    menuItemUncategoried.addEventListener("click", (e) =>
-      MenuTools.selectMenu(e.currentTarget)
-    );
+    const menuItemToday = document.getElementById("today");
+    menuItemUncategoried.addEventListener("click", (e) => {
+      MenuTools.selectMenu(e.currentTarget);
+    });
+    menuItemToday.addEventListener("click", (e) => {
+      MenuTools.selectMenu(e.currentTarget);
+    });
     menuItemUncategoried.click();
     MenuTools.refreshCategories();
     MenuTools.refreshTodos();
