@@ -9,73 +9,55 @@
     <header>
       <div class="header-left header-div">
           <button>
-              <img src="0d2a45a73333c3808cef.svg">
+              <img id="menu-icon">
           </button>
           <button>
-              <img src="ab40884edb962e3d70b1.svg">
+              <img id="home-icon">
           </button>
       </div>
       <div class="header-right header-div">
           <button class="add-todo-btn">
-              <img src="fc4d503dd847c3dad5ce.svg">
+              <img id="add-todo-icon">
           </button>
       </div>
     </header>
     <div class="content-wrapper">
-      <div class="menu-wrapper">
-        <ul class="menu">
-          <li id="uncategorized" class="menu-item menu-item-sizing menu-active">
-            <span class="icon-placeholder">
-              <img src="b1893b4f4fa5aeca9c1d.svg">
-            </span>
-            <h1>Uncategorized</h1>
-          </li>
-          <li id="today" class="menu-item menu-item-sizing">
-            <span class="icon-placeholder">
-              <img src="b1893b4f4fa5aeca9c1d.svg">
-            </span>
-            <h1>Today</h1>
-          </li>
-          <li class="projects-header-li menu-item-sizing">
-            <div class="project-menu-bar-root">
-              <div class="project-menu-bar-left">
-                <span class="icon-placeholder">
-                  <img src="b1893b4f4fa5aeca9c1d.svg">
-                </span>
-                <h1>Projects</h1>
-              </div>
-              <div class="add-project-btn">
-                <img src="fc4d503dd847c3dad5ce.svg">
-              </div>            
+      <ul class="menu menu-transition">
+        <li id="Uncategorized" class="menu-item menu-item-sizing menu-active">
+          <span class="icon-placeholder">
+            <img id="Uncategorized-icon">
+          </span>
+          <h1>Uncategorized</h1>
+        </li>
+        <li id="today" class="menu-item menu-item-sizing">
+          <span class="icon-placeholder">
+            <img id="today-icon">
+          </span>
+          <h1>Today</h1>
+        </li>
+        <li class="projects-header-li">
+          <div class="project-menu-bar-root menu-item-sizing">
+            <div class="project-menu-bar-left">
+              <span class="icon-placeholder">
+                <img id="projects-icon">
+              </span>
+              <h1>Projects</h1>
             </div>
-            <ul class="project-list">
-            </ul>
-          </li>
-        </ul>
-      </div>
+            <div class="add-project-btn">
+              <img id="add-project-icon">
+            </div>            
+          </div>
+          <ul class="project-list">
+          </ul>
+        </li>
+      </ul>
       <div class="todo-list-wrapper">
         <div class="todo-list">
           <div id="todo-list-header">
             <h1>Uncategorized</h1>
             <hr>
           </div>
-          <div id="add-todo-to-category"></div>
           <ul id="current-todos">
-            <li class="todo-li">
-              <div class="todo-wrapper">
-                <img class="todo-chip" src="c183f43e76f8e492ca2b.svg">
-                <div class="todo-content">
-                  <h1>Eat Fudge</h1>
-                  <h2>68lbs of it</h2>
-                </div>
-                <div class="todo-btn-wrapper">
-                  <img class="todo-btn edit-todo-btn" src="3a16da414c99516fc22e.svg">
-                  <img class="todo-btn change-date-btn" src="6f7d74372fc4a997924a.svg">
-                  <img class="todo-btn change-category-btn" src="6c22c4f5d5545cd0a5b0.svg">
-                </div>  
-              </div>
-              <hr>
-            </li>
           </ul>
         </div>
       </div>
