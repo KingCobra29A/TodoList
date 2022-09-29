@@ -395,6 +395,10 @@ hr {
   min-height: 30rem;
 }
 
+#edit-todo-modal > .modal-content {
+  min-height: 30rem;
+}
+
 #add-category-modal > .modal-content {
   height: var(--modal-content-height-add-category);
 }
