@@ -4,6 +4,10 @@ import formatDistace from "date-fns/formatDistance";
 import "./style/css-reset.css";
 import "./style/index.css";
 import { TodoController } from "../todo-controller/todo-controller";
+import placeHolderIcon from "./assets/noun-chameleon-1049192.svg";
+import menuSrc from "./assets/noun-menu-3661996.svg";
+import homeSrc from "./assets/noun-home-5121495.svg";
+import plusSrc from "./assets/noun-plus-1807535.svg";
 import bulletSrc from "./assets/noun-circle-5147182.svg";
 import editSrc from "./assets/noun-edit-3094235.svg";
 import unfilledCircleSrc from "./assets/noun-unfilled-circle-1157067.svg";
@@ -211,8 +215,8 @@ const TodoView = (() => {
         deleteCategoryForm.classList.add("modal-content");
         deleteCategoryForm.appendChild(title);
         deleteCategoryForm.appendChild(buttons);
-        deleteCategoryForm.addEventListener("submit", (e) => {
-          e.preventDefault();
+        deleteCategoryForm.addEventListener("submit", (event) => {
+          event.preventDefault();
           setTimeout(buildCategoryList, 0);
           if (TodoController.deleteCategory(menuItem.id)) {
             setTimeout(
@@ -369,6 +373,8 @@ const TodoView = (() => {
     //
     //
     const selectMenu = (eTarget) => {
+      const mediaQueryWindowSize =
+        window.matchMedia("(max-width: 500px)").matches;
       handleMenuActiveClass(eTarget);
       if (eTarget.id === "today") {
         updateTodoListHeader(true);
@@ -376,6 +382,9 @@ const TodoView = (() => {
       } else {
         updateTodoListHeader(false);
         populateTodoList(TodoController.selectCategory(eTarget.id));
+      }
+      if (mediaQueryWindowSize) {
+        MenuToggle.fadeOut();
       }
     };
 
@@ -396,20 +405,22 @@ const TodoView = (() => {
 
   //
   const editTodoCallback = (e) => {
-    const { id } = e.currentTarget.parentElement.parentElement.parentElement;
+    const { id } =
+      e.currentTarget.parentElement.parentElement.parentElement.parentElement;
     const todo = TodoController.getTodoContentById(id);
-    TodoBtn.createEditTodoModalForm(todo);
+    AddEditTodo.createEditTodoModalForm(todo);
   };
 
   const deleteTodoCallback = (e) => {
-    const { id } = e.currentTarget.parentElement.parentElement.parentElement;
+    const { id } =
+      e.currentTarget.parentElement.parentElement.parentElement.parentElement;
     TodoController.deleteTodo(id);
     MenuTools.refreshTodos();
   };
 
   // HACK
   const checkOffTodoCallback = (e) => {
-    const todoLi = e.target.parentNode.parentNode;
+    const todoLi = e.target.parentNode.parentNode.parentNode;
     TodoController.toggleTodoCompletionStatus(todoLi.id);
     setTimeout(MenuTools.refreshTodos(), 10);
   };
@@ -471,14 +482,18 @@ const TodoView = (() => {
     // lower order fn used in createTodo
     const createTodoContentWrapper = (todo) => {
       const todoWrapper = document.createElement("div");
+      const todoWrapperLeft = document.createElement("div");
+      const todoWrapperRight = document.createElement("div");
       todoWrapper.classList.add("todo-wrapper");
+      todoWrapperLeft.classList.add("todo-wrapper-left");
+      todoWrapperRight.classList.add("todo-wrapper-right");
       if (todo.active === true) {
-        todoWrapper.appendChild(
+        todoWrapperLeft.appendChild(
           createTodoBtn(unfilledCircleSrc, ["todo-chip"], checkOffTodoCallback)
         );
-        todoWrapper.appendChild(createTodoContent(todo));
-        todoWrapper.appendChild(createTodoDeadlineDisplay(todo.date));
-        todoWrapper.appendChild(
+        todoWrapperLeft.appendChild(createTodoContent(todo));
+        todoWrapperRight.appendChild(createTodoDeadlineDisplay(todo.date));
+        todoWrapperRight.appendChild(
           createTodoButtons(
             editSrc,
             ["todo-btn", "edit-todo-btn"],
@@ -487,11 +502,11 @@ const TodoView = (() => {
         );
       } else {
         todoWrapper.classList.add("todo-wrapper-inactive");
-        todoWrapper.appendChild(
+        todoWrapperLeft.appendChild(
           createTodoBtn(checkboxSrc, ["todo-chip"], checkOffTodoCallback)
         );
-        todoWrapper.appendChild(createTodoContent(todo));
-        todoWrapper.appendChild(
+        todoWrapperLeft.appendChild(createTodoContent(todo));
+        todoWrapperRight.appendChild(
           createTodoButtons(
             deleteSrc,
             ["todo-btn", "delete-todo-btn"],
@@ -499,6 +514,8 @@ const TodoView = (() => {
           )
         );
       }
+      todoWrapper.appendChild(todoWrapperLeft);
+      todoWrapper.appendChild(todoWrapperRight);
       return todoWrapper;
     };
 
@@ -519,8 +536,12 @@ const TodoView = (() => {
     };
   })();
 
-  // Internal Module used to set up add todo button
-  const TodoBtn = (() => {
+  // Module responsible for the users ability to add and edit todos
+  // This module adds an event listner to the "add todo" button
+  //    as well as a callback for each todos "edit todo" button.
+  // This module creates, validates, and submits the form to add/edit todos
+  const AddEditTodo = (() => {
+    // Validation for the title field, used for both add and edit todo
     const validateTitle = (title) => {
       const ariaSpan = title.nextSibling;
       if (!title.value) {
@@ -532,8 +553,7 @@ const TodoView = (() => {
       }
     };
 
-    //
-    //
+    // Submit handling for add todo
     const submitAddTodoFormCallback = () => {
       const formContents = document.forms.addTodoForm.elements;
       if (formContents.todoTitle.validity.valid) {
@@ -549,6 +569,7 @@ const TodoView = (() => {
       }
     };
 
+    // Submit handling for edit todo
     const submitEditTodoFormCallback = (idIn) => {
       const id = idIn;
       return () => {
@@ -564,8 +585,7 @@ const TodoView = (() => {
       };
     };
 
-    //
-    //
+    // This creates the form which is used for both add and edit todo
     const createTodoModalForm = (formTitle, name, callback) => {
       const modalForm = document.createElement("form");
       const titleField = Utilities.required(
@@ -607,8 +627,7 @@ const TodoView = (() => {
       return modalForm;
     };
 
-    //
-    //
+    // Edit todo: this tweaks the form to include the already known todo data
     const createEditTodoModalForm = (todo) => {
       Utilities.createModal(
         "edit-todo-modal",
@@ -634,7 +653,8 @@ const TodoView = (() => {
       document.getElementById("todoDescription").innerText = todo.description;
     };
 
-    const init = () => {
+    // This initializes the add todo button with an event listener
+    const initAddTodoBtn = () => {
       const todoBtn = document.querySelector(".add-todo-btn");
       todoBtn.addEventListener("click", () => {
         Utilities.createModal(
@@ -649,11 +669,15 @@ const TodoView = (() => {
     };
 
     return {
-      init,
+      initAddTodoBtn,
       createEditTodoModalForm,
     };
   })();
 
+  // Module responsible for the ability to create new projects
+  // This module adds an event listner to the "add project" button
+  //    and creates, validates, and submits the form to make it happen
+  // init() is the only exposed method, which should be called on page load
   const AddCategoryBtn = (() => {
     const validateCategory = (category) => {
       const ariaSpan = category.nextSibling;
@@ -714,21 +738,107 @@ const TodoView = (() => {
     };
   })();
 
+  const MenuToggle = (() => {
+    let mediaQueryWindowSize;
+    let menuState = true;
+    let debounceMenu = true;
+    const debounceTime = 250;
+    const menuElement = document.querySelector(".menu");
+    const todoListElement = document.querySelector(".todo-list-wrapper");
+
+    const getMenuState = () => menuState;
+
+    const resetDebounce = () => {
+      setTimeout(() => {
+        debounceMenu = true;
+      }, debounceTime);
+      return false;
+    };
+
+    const fadeOut = () => {
+      if (debounceMenu === true) {
+        debounceMenu = resetDebounce();
+        menuElement.classList.add("menu-fade");
+        todoListElement.classList.remove("display-disabled");
+        setTimeout(() => {
+          menuElement.classList.add("display-disabled");
+        }, 100);
+        menuState = false;
+      }
+    };
+
+    const fadeIn = () => {
+      if (debounceMenu === true) {
+        debounceMenu = resetDebounce();
+        menuElement.classList.remove("display-disabled");
+        setTimeout(() => menuElement.classList.remove("menu-fade"), 10);
+        if (mediaQueryWindowSize) {
+          setTimeout(
+            () => todoListElement.classList.add("display-disabled"),
+            20
+          );
+        }
+        menuState = true;
+      }
+    };
+
+    const toggleMenuStatus = () => {
+      mediaQueryWindowSize = window.matchMedia("(max-width: 500px)").matches;
+      if (menuState) {
+        fadeOut();
+      } else {
+        fadeIn();
+      }
+    };
+
+    const initMenuBtn = () => {
+      const menuBtn = document.getElementById("menu-icon");
+      menuBtn.addEventListener("click", () => {
+        toggleMenuStatus();
+      });
+    };
+
+    return {
+      getMenuState,
+      initMenuBtn,
+      fadeOut,
+    };
+  })();
+
+  const initStaticIcons = () => {
+    const menuIcon = document.getElementById("menu-icon");
+    const homeIcon = document.getElementById("home-icon");
+    const addTodoIcon = document.getElementById("add-todo-icon");
+    const uncategorizedIcon = document.getElementById("Uncategorized-icon");
+    const todayIcon = document.getElementById("today-icon");
+    const projectsIcon = document.getElementById("projects-icon");
+    const addProjectIcon = document.getElementById("add-project-icon");
+    menuIcon.src = menuSrc;
+    homeIcon.src = homeSrc;
+    addTodoIcon.src = plusSrc;
+    uncategorizedIcon.src = placeHolderIcon;
+    todayIcon.src = placeHolderIcon;
+    projectsIcon.src = placeHolderIcon;
+    addProjectIcon.src = plusSrc;
+  };
+
   // Called once on page load
   //
   const initView = () => {
     const menuItemUncategoried = document.getElementById("Uncategorized");
     const menuItemToday = document.getElementById("today");
+    initStaticIcons();
     menuItemUncategoried.addEventListener("click", (e) => {
       MenuTools.selectMenu(e.currentTarget);
     });
     menuItemToday.addEventListener("click", (e) => {
       MenuTools.selectMenu(e.currentTarget);
     });
+    MenuToggle.initMenuBtn();
     menuItemUncategoried.click();
     MenuTools.refreshCategories();
     MenuTools.refreshTodos();
-    TodoBtn.init();
+    AddEditTodo.initAddTodoBtn();
     AddCategoryBtn.init();
   };
 
