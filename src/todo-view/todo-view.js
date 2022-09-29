@@ -605,7 +605,7 @@ const TodoView = (() => {
       const categoryField = Utilities.createSelectInput(
         ["Uncategorized"].concat(TodoController.getCategories()),
         "todoCategory",
-        "Category: "
+        "Project: "
       );
       try {
         categoryField.querySelector("select").options[
@@ -710,14 +710,14 @@ const TodoView = (() => {
     const createAddCategoryModalForm = () => {
       const modalForm = document.createElement("form");
       modalForm.name = "addCategoryForm";
-      modalForm.appendChild(Utilities.createText("h1", "Add Category"));
+      modalForm.appendChild(Utilities.createText("h1", "Add Project"));
       modalForm.appendChild(
         Utilities.required(
-          Utilities.createFormField("category", "Category: ", "text"),
+          Utilities.createFormField("category", "Project: ", "text"),
           validateCategory
         )
       );
-      modalForm.appendChild(Utilities.createFormControls("Add Category"));
+      modalForm.appendChild(Utilities.createFormControls("Add Project"));
       modalForm.noValidate = true;
       Utilities.prepFormForModal(modalForm, submitAddCategoryFormCallback);
       return modalForm;
@@ -847,4 +847,4 @@ const TodoView = (() => {
   };
 })();
 
-TodoView.initView();
+document.addEventListener("load", TodoView.initView());
