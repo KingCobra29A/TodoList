@@ -481,13 +481,13 @@ hr {
   }
 }
 
-@media (max-width: 850px) {
+@media only screen and (max-width: 850px) {
   :root {
     --modal-content-width: 70vw;
   }
 }
 
-@media (max-width: 500px) {
+@media only screen and (max-width: 500px) {
   :root {
     --modal-content-width: 90vw;
     --modal-left-right-margin: 2rem;
