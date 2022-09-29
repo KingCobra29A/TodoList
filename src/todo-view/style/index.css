@@ -12,8 +12,8 @@
   --modal-content-margin: 20vh auto;
   --modal-content-width: 30vw;
   --modal-content-height: 60vh;
-  --modal-content-height-add-category: 15vh;
-  --modal-content-height-delete-category: 8vh;
+  --modal-content-height-add-category: 15rem;
+  --modal-content-height-delete-category: 9rem;
   --modal-content-background-color: #fefefe;
   --category-modal-text-size: 2rem;
   --menu-width: 20rem;
@@ -391,6 +391,10 @@ hr {
   filter: var(--modal-drop-shadow);
 }
 
+#add-todo-modal > .modal-content {
+  min-height: 30rem;
+}
+
 #add-category-modal > .modal-content {
   height: var(--modal-content-height-add-category);
 }
@@ -461,15 +465,9 @@ hr {
 
 @media only screen and (max-width: 1200px) {
   :root {
-    --header-height: 8rem;
+    --header-height: 4rem;
     --modal-content-width: 45vw;
     --todo-list-width: 80%;
-    --modal-content-margin: 10vh auto;
-    --modal-content-height: 80vh;
-    --modal-content-height-add-category: 50vh;
-    --modal-content-height-delete-category: 25vh;
-    --menu-item-height: 2rem;
-    --category-modal-text-size: 1.3rem;
   }
 
   .todo-wrapper {
@@ -497,25 +495,23 @@ hr {
     --menu-item-active-border-radius: 5px;
     --menu-item-width: 80vw;
     --menu-item-margin: 0 0 0 5vw;
-    --menu-item-height: 2rem;
-    --todo-list-width: 90%;
-    --modal-content-height-add-category: 70vh;
-    --modal-content-height-delete-category: 35vh;
-    --modal-content-height: 60vh;
-    --menu-item-height: 2rem;
   }
 }
 
-/*
 @media only screen and (max-height: 1000px) {
   :root {
-
+    --modal-content-height: 60vh;
+    --menu-item-height: 2rem;
+    --category-modal-text-size: 1.3rem;
+    --modal-content-margin: 10vh auto;
   }
 }
 
 @media only screen and (max-height: 400px) {
   :root {
-
+    --menu-item-height: 2rem;
+    --todo-list-width: 90%;
+    --modal-content-height: 60vh;
+    --menu-item-height: 2rem;
   }
 }
-*/
